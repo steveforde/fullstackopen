@@ -1,23 +1,24 @@
 import { useState } from "react";
 
+const FeedbackHeader = () => <h1>Give Feedback</h1>;
+const StatisticsHeader = () => <h1>Statistics</h1>;
+
 const Statistics = (props) => {
   const { good, neutral, bad } = props;
   const total = good + neutral + bad;
 
-  // 1. If there is no feedback, show a message
   if (total === 0) {
     return (
       <div>
-        <h1>Statistics</h1>
+        <StatisticsHeader />
         <p>No feedback given</p>
       </div>
     );
   }
 
-  // 2. OTHERWISE: show the full table
   return (
     <div>
-      <h1>Statistics</h1>
+      <StatisticsHeader />
       <p>good {good}</p>
       <p>neutral {neutral}</p>
       <p>bad {bad}</p>
@@ -35,12 +36,10 @@ const App = () => {
 
   return (
     <div>
-      <h1>Give Feedback</h1>
+      <FeedbackHeader />
       <button onClick={() => setGood(good + 1)}>good</button>
       <button onClick={() => setNeutral(neutral + 1)}>neutral</button>
       <button onClick={() => setBad(bad + 1)}>bad</button>
-
-      {/* This is the "Dry" way—passing data to your component */}
       <Statistics good={good} neutral={neutral} bad={bad} />
     </div>
   );
