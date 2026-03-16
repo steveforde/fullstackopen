@@ -17,7 +17,7 @@ const App = () => {
     );
 
     if (nameExists) {
-      alert(`${newName} is already added to phonebook`);
+      alert(`${newName} is already added to the phonebook`);
       setNewName("");
       return;
     }
