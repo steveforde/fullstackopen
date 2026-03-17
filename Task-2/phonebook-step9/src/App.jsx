@@ -10,7 +10,6 @@ const App = () => {
   const [newNumber, setNewNumber] = useState("");
   const [filter, setFilter] = useState("");
 
-  // 1. Fetching data using the service
   useEffect(() => {
     personService.getAll().then((initialPersons) => {
       setPersons(initialPersons);

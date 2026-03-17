@@ -10,7 +10,6 @@ const App = () => {
   const [newNumber, setNewNumber] = useState("");
   const [filter, setFilter] = useState("");
 
-  // 1. Fetching initial data from server
   useEffect(() => {
     personService.getAll().then((initialPersons) => {
       setPersons(initialPersons);
@@ -25,7 +24,6 @@ const App = () => {
       return;
     }
 
-    // Check if the person already exists
     const existingPerson = persons.find(
       (p) => p.name.trim().toLowerCase() === newName.trim().toLowerCase(),
     );
@@ -62,7 +60,6 @@ const App = () => {
       return;
     }
 
-    // Normal Step 7/8 logic: Create new person
     const nameObject = {
       name: newName,
       number: newNumber,
@@ -84,15 +81,13 @@ const App = () => {
     }
   };
 
-  // Handlers for input changes
-  const handleFilterChange = (e) => setFilter(e.target.value);
-  const handleNameChange = (e) => setNewName(e.target.value);
-  const handleNumberChange = (e) => setNewNumber(e.target.value);
-
-  // Filter logic for the display
   const filteredPersons = persons.filter((p) =>
     p.name.toLowerCase().includes(filter.toLowerCase()),
   );
+
+  const handleFilterChange = (e) => setFilter(e.target.value);
+  const handleNameChange = (e) => setNewName(e.target.value);
+  const handleNumberChange = (e) => setNewNumber(e.target.value);
 
   return (
     <div>

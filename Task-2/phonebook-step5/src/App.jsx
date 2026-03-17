@@ -10,12 +10,11 @@ const App = () => {
   const [newNumber, setNewNumber] = useState("");
   const [filter, setFilter] = useState("");
 
-  // 4. This runs as soon as the component renders for the first time
   useEffect(() => {
     axios.get("http://localhost:3001/persons").then((response) => {
       setPersons(response.data);
     });
-  }, []); // The empty array [] ensures this ONLY runs once on startup
+  }, []);
 
   const filteredPersons = persons.filter((person) =>
     person.name.toLowerCase().includes(filter.toLowerCase()),
