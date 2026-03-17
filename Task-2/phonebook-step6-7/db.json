@@ -55,6 +55,5 @@
       "name": "blue magic",
       "number": "1234567"
     }
-  ],
-  "$schema": "./node_modules/json-server/schema.json"
+  ]
 }

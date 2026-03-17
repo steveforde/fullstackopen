@@ -29,7 +29,31 @@
       "id": "be03",
       "name": "Jonny Rotten",
       "number": "0865436755"
+    },
+    {
+      "id": "76ef",
+      "name": "Aine Forde",
+      "number": "0836549876"
+    },
+    {
+      "id": "f040",
+      "name": "Peter Smith",
+      "number": "0853423877"
+    },
+    {
+      "id": "8900",
+      "name": "John Smith",
+      "number": "0832146765"
+    },
+    {
+      "id": "15c1",
+      "name": "jimmy bigballs",
+      "number": "084 3467865"
+    },
+    {
+      "id": "3cd1",
+      "name": "blue magic",
+      "number": "1234567"
     }
-  ],
-  "$schema": "./node_modules/json-server/schema.json"
+  ]
 }
