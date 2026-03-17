@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react"; // 1. Added useEffect
-import axios from "axios"; // 2. Import axios
+import { useState, useEffect } from "react";
+// Import the service instead of axios
+import personService from "./services/persons";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
@@ -10,26 +11,17 @@ const App = () => {
   const [newNumber, setNewNumber] = useState("");
   const [filter, setFilter] = useState("");
 
-  // 4. This runs as soon as the component renders for the first time
+  // 1. Fetching data using the service
   useEffect(() => {
-    axios.get("http://localhost:3001/persons").then((response) => {
-      setPersons(response.data);
+    personService.getAll().then((initialPersons) => {
+      setPersons(initialPersons);
     });
-  }, []); // The empty array [] ensures this ONLY runs once on startup
-
-  const filteredPersons = persons.filter((person) =>
-    person.name.toLowerCase().includes(filter.toLowerCase()),
-  );
-
-  const handleFilterChange = (event) => {
-    setFilter(event.target.value);
-  };
+  }, []);
 
   const addName = (event) => {
     event.preventDefault();
     const nameExists = persons.some(
-      (person) =>
-        person.name.trim().toLowerCase() === newName.trim().toLowerCase(),
+      (p) => p.name.trim().toLowerCase() === newName.trim().toLowerCase(),
     );
 
     if (nameExists) {
@@ -41,27 +33,27 @@ const App = () => {
     const nameObject = {
       name: newName,
       number: newNumber,
-      id: (persons.length + 1).toString(),
     };
 
-    setPersons(persons.concat(nameObject));
-    setNewName("");
-    setNewNumber("");
+    personService.create(nameObject).then((returnedPerson) => {
+      setPersons(persons.concat(returnedPerson));
+      setNewName("");
+      setNewNumber("");
+    });
   };
 
-  const handleNameChange = (event) => {
-    setNewName(event.target.value);
-  };
+  const handleFilterChange = (e) => setFilter(e.target.value);
+  const handleNameChange = (e) => setNewName(e.target.value);
+  const handleNumberChange = (e) => setNewNumber(e.target.value);
 
-  const handleNumberChange = (event) => {
-    setNewNumber(event.target.value);
-  };
+  const filteredPersons = persons.filter((p) =>
+    p.name.toLowerCase().includes(filter.toLowerCase()),
+  );
 
   return (
     <div>
       <h2>Phonebook</h2>
       <Filter filter={filter} handleFilterChange={handleFilterChange} />
-
       <h3>Add a new</h3>
       <PersonForm
         addName={addName}
@@ -70,7 +62,6 @@ const App = () => {
         newNumber={newNumber}
         handleNumberChange={handleNumberChange}
       />
-
       <h3>Numbers</h3>
       <Persons filteredPersons={filteredPersons} />
     </div>

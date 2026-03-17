@@ -1,0 +1,60 @@
+{
+  "persons": [
+    {
+      "name": "Arto Hellas",
+      "number": "040-123456",
+      "id": "1"
+    },
+    {
+      "name": "Ada Lovelace",
+      "number": "39-44-5323523",
+      "id": "2"
+    },
+    {
+      "name": "Dan Abramov",
+      "number": "12-43-234345",
+      "id": "3"
+    },
+    {
+      "name": "Mary Poppendieck",
+      "number": "39-23-6423122",
+      "id": "4"
+    },
+    {
+      "id": "1c94",
+      "name": "Stephen Forde",
+      "number": "0873120711"
+    },
+    {
+      "id": "be03",
+      "name": "Jonny Rotten",
+      "number": "0865436755"
+    },
+    {
+      "id": "76ef",
+      "name": "Aine Forde",
+      "number": "0836549876"
+    },
+    {
+      "id": "f040",
+      "name": "Peter Smith",
+      "number": "0853423877"
+    },
+    {
+      "id": "8900",
+      "name": "John Smith",
+      "number": "0832146765"
+    },
+    {
+      "id": "15c1",
+      "name": "jimmy bigballs",
+      "number": "084 3467865"
+    },
+    {
+      "id": "3cd1",
+      "name": "blue magic",
+      "number": "1234567"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

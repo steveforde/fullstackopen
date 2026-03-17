@@ -10,12 +10,14 @@ const App = () => {
   const [newNumber, setNewNumber] = useState("");
   const [filter, setFilter] = useState("");
 
-  // 4. This runs as soon as the component renders for the first time
   useEffect(() => {
+    console.log("effect");
     axios.get("http://localhost:3001/persons").then((response) => {
+      console.log("promise fulfilled");
       setPersons(response.data);
     });
-  }, []); // The empty array [] ensures this ONLY runs once on startup
+  }, []);
+  console.log("render", persons.length, "persons");
 
   const filteredPersons = persons.filter((person) =>
     person.name.toLowerCase().includes(filter.toLowerCase()),
@@ -41,12 +43,13 @@ const App = () => {
     const nameObject = {
       name: newName,
       number: newNumber,
-      id: (persons.length + 1).toString(),
     };
 
-    setPersons(persons.concat(nameObject));
-    setNewName("");
-    setNewNumber("");
+    axios.post("http://localhost:3001/persons", nameObject).then((response) => {
+      setPersons(persons.concat(response.data));
+      setNewName("");
+      setNewNumber("");
+    });
   };
 
   const handleNameChange = (event) => {
