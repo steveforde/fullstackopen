@@ -1,6 +1,11 @@
 {
   "persons": [
     {
+      "name": "Arto Hellas",
+      "number": "040-123456",
+      "id": "1"
+    },
+    {
       "name": "Ada Lovelace",
       "number": "39-44-5323523",
       "id": "2"
@@ -9,6 +14,16 @@
       "name": "Dan Abramov",
       "number": "12-43-234345",
       "id": "3"
+    },
+    {
+      "name": "Mary Poppendieck",
+      "number": "39-23-6423122",
+      "id": "4"
+    },
+    {
+      "id": "1c94",
+      "name": "Stephen Forde",
+      "number": "0873120711"
     },
     {
       "id": "be03",
@@ -54,41 +69,6 @@
       "id": "937b",
       "name": "Henry Rat",
       "number": "0864329768"
-    },
-    {
-      "id": "c048",
-      "name": "tommy bird",
-      "number": "098456344"
-    },
-    {
-      "id": "49a7",
-      "name": "henry smith",
-      "number": "0865433455"
-    },
-    {
-      "id": "2187",
-      "name": "keith smith",
-      "number": "05643245"
-    },
-    {
-      "id": "309b",
-      "name": "frank",
-      "number": "0876556789"
-    },
-    {
-      "id": "470c",
-      "name": "prince",
-      "number": "08654678899"
-    },
-    {
-      "id": "2fd7",
-      "name": "Stephen Fry",
-      "number": "0753425433"
-    },
-    {
-      "id": "74f3",
-      "name": "brian ass",
-      "number": "0873124355"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
