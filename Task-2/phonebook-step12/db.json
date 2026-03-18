@@ -21,11 +21,6 @@
       "id": "4"
     },
     {
-      "id": "1c94",
-      "name": "Stephen Forde",
-      "number": "0873120711"
-    },
-    {
       "id": "be03",
       "name": "Jonny Rotten",
       "number": "0865436755"
@@ -69,6 +64,11 @@
       "id": "937b",
       "name": "Henry Rat",
       "number": "0864329768"
+    },
+    {
+      "id": "681e",
+      "name": "john boy",
+      "number": "097453322"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

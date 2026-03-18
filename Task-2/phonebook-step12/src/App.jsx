@@ -54,7 +54,7 @@ const App = () => {
           })
           .catch(() => {
             setMessage(
-              `Error: ${existingPerson.name} was already removed from server`,
+              `Error: Information of ${existingPerson.name} was already removed from server`,
             );
             setTimeout(() => setMessage(null), 7000);
             setPersons(persons.filter((p) => p.id !== existingPerson.id));
