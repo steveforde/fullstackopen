@@ -48,7 +48,7 @@ const App = () => {
           onChange={(e) => setSearchItem(e.target.value)}
         />
       </div>
-
+      {searchItem === "" && <p>Type a country name to start searching</p>}
       {loading && <p>Searching...</p>}
 
       <div style={{ marginTop: "20px" }}>
