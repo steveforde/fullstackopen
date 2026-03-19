@@ -1,0 +1,75 @@
+{
+  "persons": [
+    {
+      "name": "Arto Hellas",
+      "number": "040-123456",
+      "id": "1"
+    },
+    {
+      "name": "Ada Lovelace",
+      "number": "39-44-5323523",
+      "id": "2"
+    },
+    {
+      "name": "Dan Abramov",
+      "number": "12-43-234345",
+      "id": "3"
+    },
+    {
+      "name": "Mary Poppendieck",
+      "number": "39-23-6423122",
+      "id": "4"
+    },
+    {
+      "id": "be03",
+      "name": "Jonny Rotten",
+      "number": "0865436755"
+    },
+    {
+      "id": "76ef",
+      "name": "Aine Forde",
+      "number": "0836549876"
+    },
+    {
+      "id": "f040",
+      "name": "Peter Smith",
+      "number": "0853423877"
+    },
+    {
+      "id": "8900",
+      "name": "John Smith",
+      "number": "0832146765"
+    },
+    {
+      "id": "3cd1",
+      "name": "blue magic",
+      "number": "1234567"
+    },
+    {
+      "id": "f755",
+      "name": "sandra cunt",
+      "number": "0853423675"
+    },
+    {
+      "id": "dfde",
+      "name": "Jonny Depp",
+      "number": "0853428876"
+    },
+    {
+      "id": "f1b8",
+      "name": "Fintan O Toole",
+      "number": "0874327688"
+    },
+    {
+      "id": "937b",
+      "name": "Henry Rat",
+      "number": "0864329768"
+    },
+    {
+      "id": "681e",
+      "name": "john boy",
+      "number": "097453322"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
