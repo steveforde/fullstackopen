@@ -1,15 +1,14 @@
 const express = require("express");
-const morgan = require("morgan"); // 1. Import morgan
+const morgan = require("morgan"); // Don't forget this!
+const cors = require("cors");
 const app = express();
 
-// This middleware allows the server to read JSON data from requests
+app.use(express.static("dist"));
+app.use(cors());
 app.use(express.json());
 
-// 1. DEFINE THE TOKEN FIRST
-morgan.token("body", (req, res) => {
-  return JSON.stringify(req.body);
-});
-
+// Morgan configuration
+morgan.token("body", (req) => JSON.stringify(req.body));
 app.use(
   morgan(":method :url :status :res[content-length] - :response-time ms :body"),
 );
@@ -99,7 +98,7 @@ app.post("/api/persons", (request, response) => {
   response.json(person);
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
