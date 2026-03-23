@@ -1,100 +1,118 @@
+require("dotenv").config();
 const express = require("express");
-const morgan = require("morgan"); // Don't forget this!
+const morgan = require("morgan");
 const app = express();
+const Person = require("./models/person");
 
 app.use(express.static("dist"));
 app.use(express.json());
 
-// Morgan configuration
 morgan.token("body", (req) => JSON.stringify(req.body));
 app.use(
   morgan(":method :url :status :res[content-length] - :response-time ms :body"),
 );
 
-// This is the hardcoded data for the Phonebook
-let persons = [
-  { id: "1", name: "Arto Hellas", number: "040-123456" },
-  { id: "2", name: "Ada Lovelace", number: "39-44-5323523" },
-  { id: "3", name: "Dan Abramov", number: "12-43-234345" },
-  { id: "4", name: "Mary Poppendieck", number: "39-23-6423122" },
-  { id: "5", name: "Arto Forde", number: "39-23-6423122" },
-  { id: "6", name: "Arto Järvinen", number: "39-23-6423122" },
-  { id: "7", name: "Arto fox", number: "39-23-6423332" },
-  { id: "8", name: "Ada Fox", number: "39-23-9873122" },
-  { id: "9", name: "Mary Järvinen", number: "39-23-4353122" },
-  { id: "10", name: "jonny Järvinen", number: "39-23-4373122" },
-  { id: "11", name: "Arto smith", number: "39-23-64288882" },
-  { id: "12", name: "jimmy fox", number: "39-23-6423122" },
-];
-
-// FETCH ALL: This gets the full list of people
 app.get("/api/persons", (request, response) => {
-  response.json(persons);
+  Person.find({}).then((persons) => {
+    response.json(persons);
+  });
 });
 
-// INFO PAGE: Shows count of people and current time
 app.get("/info", (request, response) => {
-  const count = persons.length;
-  const date = new Date();
-
-  response.send(`
-    <p>Phonebook has info for ${count} people</p>
-    <p>${date}</p>
-  `);
+  Person.countDocuments({}).then((count) => {
+    const date = new Date();
+    response.send(`
+      <p>Phonebook has info for ${count} people</p>
+      <p>${date}</p>
+    `);
+  });
 });
 
-// SEARCH ONE: This filters the list to find one person by ID
-app.get("/api/persons/:id", (request, response) => {
-  const id = request.params.id;
-  const person = persons.find((person) => person.id === id);
-
-  if (person) {
-    response.json(person);
-  } else {
-    response.status(404).end();
-  }
+// 1. Updated GET with 'next'
+app.get("/api/persons/:id", (request, response, next) => {
+  Person.findById(request.params.id)
+    .then((person) => {
+      if (person) {
+        response.json(person);
+      } else {
+        response.status(404).end();
+      }
+    })
+    .catch((error) => next(error)); // Pass error to specialist
 });
 
-// DELETE: This removes a person from the list by filtering them out
-app.delete("/api/persons/:id", (request, response) => {
-  const id = request.params.id;
-  persons = persons.filter((person) => person.id !== id);
-  response.status(204).end(); // 204 means success, nothing to show
+// 2. Updated DELETE with 'next'
+app.delete("/api/persons/:id", (request, response, next) => {
+  Person.findByIdAndDelete(request.params.id)
+    .then((result) => {
+      response.status(204).end();
+    })
+    .catch((error) => next(error)); // Pass error to specialist
 });
 
-// ADD PERSON: This creates a new entry with validation and a random ID
-app.post("/api/persons", (request, response) => {
+app.post("/api/persons", (request, response, next) => {
   const body = request.body;
 
-  // Error Check 1: Missing name or number
   if (!body.name || !body.number) {
-    return response.status(400).json({
-      error: "name or number missing, you need both",
-    });
+    return response.status(400).json({ error: "name or number missing" });
   }
 
-  // Error Check 2: Duplicate name search
-  const nameExists = persons.some((p) => p.name === body.name);
-  if (nameExists) {
-    return response.status(400).json({
-      error: "name must be unique",
-    });
-  }
+  Person.findOne({ name: body.name })
+    .then((existingPerson) => {
+      if (existingPerson) {
+        // We handle this manually because we know the exact problem
+        return response.status(400).json({ error: "name must be unique" });
+      }
 
-  // Generate a big random ID
-  const randomId = Math.floor(Math.random() * 1000000);
+      const person = new Person({
+        name: body.name,
+        number: body.number,
+      });
 
-  request.body.id = randomId;
+      // We return this save so the NEXT .then handles the success
+      return person.save();
+    })
+    .then((savedPerson) => {
+      if (savedPerson) {
+        // This check prevents crashing if the duplicate check triggered
+        response.json(savedPerson);
+      }
+    })
+    .catch((error) => next(error)); // This catches ANY database crash
+});
+
+app.put("/api/persons/:id", (request, response, next) => {
+  const body = request.body;
 
   const person = {
-    id: String(randomId),
     name: body.name,
     number: body.number,
   };
 
-  persons = persons.concat(person);
-  response.json(person);
+  // findByIdAndUpdate takes (id, newObject, options)
+  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+    .then((updatedPerson) => {
+      if (updatedPerson) {
+        response.json(updatedPerson);
+      } else {
+        response.status(404).end();
+      }
+    })
+    .catch((error) => next(error));
 });
+
+// 3. The Error Handler Specialist (MUST be at the bottom)
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message);
+
+  if (error.name === "CastError") {
+    return response.status(400).send({ error: "malformatted id" });
+  }
+
+  next(error); // Forward to default Express error handler
+};
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
