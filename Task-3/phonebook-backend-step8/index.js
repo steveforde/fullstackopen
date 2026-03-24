@@ -1,8 +1,7 @@
 const express = require("express");
-const morgan = require("morgan"); // 1. Import morgan
+const morgan = require("morgan");
 const app = express();
 
-// This middleware allows the server to read JSON data from requests
 app.use(express.json());
 
 // 1. DEFINE THE TOKEN FIRST
@@ -30,12 +29,10 @@ let persons = [
   { id: "12", name: "jimmy fox", number: "39-23-6423122" },
 ];
 
-// FETCH ALL: This gets the full list of people
 app.get("/api/persons", (request, response) => {
   response.json(persons);
 });
 
-// INFO PAGE: Shows count of people and current time
 app.get("/info", (request, response) => {
   const count = persons.length;
   const date = new Date();
@@ -46,7 +43,6 @@ app.get("/info", (request, response) => {
   `);
 });
 
-// SEARCH ONE: This filters the list to find one person by ID
 app.get("/api/persons/:id", (request, response) => {
   const id = request.params.id;
   const person = persons.find((person) => person.id === id);
@@ -58,25 +54,21 @@ app.get("/api/persons/:id", (request, response) => {
   }
 });
 
-// DELETE: This removes a person from the list by filtering them out
 app.delete("/api/persons/:id", (request, response) => {
   const id = request.params.id;
   persons = persons.filter((person) => person.id !== id);
   response.status(204).end(); // 204 means success, nothing to show
 });
 
-// ADD PERSON: This creates a new entry with validation and a random ID
 app.post("/api/persons", (request, response) => {
   const body = request.body;
 
-  // Error Check 1: Missing name or number
   if (!body.name || !body.number) {
     return response.status(400).json({
       error: "name or number missing, you need both",
     });
   }
 
-  // Error Check 2: Duplicate name search
   const nameExists = persons.some((p) => p.name === body.name);
   if (nameExists) {
     return response.status(400).json({
@@ -84,7 +76,6 @@ app.post("/api/persons", (request, response) => {
     });
   }
 
-  // Generate a big random ID
   const randomId = Math.floor(Math.random() * 1000000);
 
   request.body.id = randomId;
