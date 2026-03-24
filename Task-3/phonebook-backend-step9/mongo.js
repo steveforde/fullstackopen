@@ -20,17 +20,14 @@ const personSchema = new mongoose.Schema({
 const Person = mongoose.model("Person", personSchema);
 
 if (process.argv.length === 3) {
-  // CASE 1: Only password provided -> LIST ENTRIES
   console.log("phonebook:");
   Person.find({}).then((result) => {
     result.forEach((person) => {
       console.log(`${person.name} ${person.number}`);
     });
-    // IMPORTANT: Close connection INSIDE the .then block
     mongoose.connection.close();
   });
 } else {
-  // CASE 2: Name and Number provided -> SAVE ENTRY
   const name = process.argv[3];
   const number = process.argv[4];
 
@@ -41,7 +38,6 @@ if (process.argv.length === 3) {
 
   person.save().then((result) => {
     console.log(`added ${name} number ${number} to phonebook`);
-    // IMPORTANT: Close connection INSIDE the .then block
     mongoose.connection.close();
   });
 }

@@ -38,7 +38,7 @@ app.get("/api/persons/:id", (request, response, next) => {
         response.status(404).end();
       }
     })
-    .catch((error) => next(error)); // Pass error to specialist
+    .catch((error) => next(error));
 });
 
 // 2. Updated DELETE with 'next'
@@ -47,7 +47,7 @@ app.delete("/api/persons/:id", (request, response, next) => {
     .then((result) => {
       response.status(204).end();
     })
-    .catch((error) => next(error)); // Pass error to specialist
+    .catch((error) => next(error));
 });
 
 app.post("/api/persons", (request, response, next) => {
@@ -60,7 +60,6 @@ app.post("/api/persons", (request, response, next) => {
   Person.findOne({ name: body.name })
     .then((existingPerson) => {
       if (existingPerson) {
-        // We handle this manually because we know the exact problem
         return response.status(400).json({ error: "name must be unique" });
       }
 
@@ -69,12 +68,10 @@ app.post("/api/persons", (request, response, next) => {
         number: body.number,
       });
 
-      // We return this save so the NEXT .then handles the success
       return person.save();
     })
     .then((savedPerson) => {
       if (savedPerson) {
-        // This check prevents crashing if the duplicate check triggered
         response.json(savedPerson);
       }
     })
@@ -89,7 +86,6 @@ app.put("/api/persons/:id", (request, response, next) => {
     number: body.number,
   };
 
-  // findByIdAndUpdate takes (id, newObject, options)
   Person.findByIdAndUpdate(request.params.id, person, { new: true })
     .then((updatedPerson) => {
       if (updatedPerson) {
@@ -101,7 +97,6 @@ app.put("/api/persons/:id", (request, response, next) => {
     .catch((error) => next(error));
 });
 
-// 3. The Error Handler Specialist (MUST be at the bottom)
 const errorHandler = (error, request, response, next) => {
   console.error(error.message);
 
@@ -109,7 +104,7 @@ const errorHandler = (error, request, response, next) => {
     return response.status(400).send({ error: "malformatted id" });
   }
 
-  next(error); // Forward to default Express error handler
+  next(error);
 };
 
 app.use(errorHandler);
