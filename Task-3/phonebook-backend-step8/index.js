@@ -29,10 +29,12 @@ let persons = [
   { id: "12", name: "jimmy fox", number: "39-23-6423122" },
 ];
 
+// Route to get all persons
 app.get("/api/persons", (request, response) => {
   response.json(persons);
 });
 
+// Route to get info
 app.get("/info", (request, response) => {
   const count = persons.length;
   const date = new Date();
@@ -43,6 +45,7 @@ app.get("/info", (request, response) => {
   `);
 });
 
+// Route to get one person by id
 app.get("/api/persons/:id", (request, response) => {
   const id = request.params.id;
   const person = persons.find((person) => person.id === id);
@@ -54,21 +57,25 @@ app.get("/api/persons/:id", (request, response) => {
   }
 });
 
+// DELETE: This removes a person by ID
 app.delete("/api/persons/:id", (request, response) => {
   const id = request.params.id;
   persons = persons.filter((person) => person.id !== id);
   response.status(204).end(); // 204 means success, nothing to show
 });
 
+// ADD PERSON:
 app.post("/api/persons", (request, response) => {
   const body = request.body;
 
+  //error handling
   if (!body.name || !body.number) {
     return response.status(400).json({
       error: "name or number missing, you need both",
     });
   }
 
+  //error handling
   const nameExists = persons.some((p) => p.name === body.name);
   if (nameExists) {
     return response.status(400).json({
@@ -76,20 +83,24 @@ app.post("/api/persons", (request, response) => {
     });
   }
 
+  // Generate a random id
   const randomId = Math.floor(Math.random() * 1000000);
 
   request.body.id = randomId;
 
+  // Add the new person
   const person = {
     id: String(randomId),
     name: body.name,
     number: body.number,
   };
 
+  // Add the new person
   persons = persons.concat(person);
   response.json(person);
 });
 
+//port
 const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

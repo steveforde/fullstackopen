@@ -22,6 +22,7 @@ app.get("/api/persons", (request, response) => {
   response.json(persons);
 });
 
+// Route to get info
 app.get("/info", (request, response) => {
   const count = persons.length;
   const date = new Date();
@@ -32,6 +33,7 @@ app.get("/info", (request, response) => {
   `);
 });
 
+// Route to get one person
 app.get("/api/persons/:id", (request, response) => {
   const id = request.params.id;
   const person = persons.find((person) => person.id === id);
@@ -43,12 +45,14 @@ app.get("/api/persons/:id", (request, response) => {
   }
 });
 
+// Route to delete a person
 app.delete("/api/persons/:id", (request, response) => {
   const id = request.params.id;
   persons = persons.filter((person) => person.id !== id);
   response.status(204).end();
 });
 
+//port
 const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

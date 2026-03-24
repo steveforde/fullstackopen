@@ -19,6 +19,7 @@ let persons = [
   { id: "12", name: "jimmy fox", number: "39-23-6423122" },
 ];
 
+// Route to get all persons
 app.get("/api/persons", (request, response) => {
   response.json(persons);
 });
@@ -70,8 +71,10 @@ app.post("/api/persons", (request, response) => {
     });
   }
 
+  // Generate a random id
   const randomId = Math.floor(Math.random() * 1000000);
 
+  // Create a new person
   const person = {
     id: String(randomId),
     name: body.name,
@@ -82,6 +85,7 @@ app.post("/api/persons", (request, response) => {
   response.json(person);
 });
 
+//port
 const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

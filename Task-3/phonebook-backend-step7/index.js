@@ -3,6 +3,7 @@ const morgan = require("morgan");
 const app = express();
 
 app.use(express.json());
+//add the morgan middleware
 app.use(morgan("tiny"));
 
 // This is the hardcoded data for the Phonebook
@@ -21,6 +22,7 @@ let persons = [
   { id: "12", name: "jimmy fox", number: "39-23-6423122" },
 ];
 
+// Route to get all persons
 app.get("/api/persons", (request, response) => {
   response.json(persons);
 });
@@ -36,6 +38,7 @@ app.get("/info", (request, response) => {
   `);
 });
 
+// GET PERSON BY ID
 app.get("/api/persons/:id", (request, response) => {
   const id = request.params.id;
   const person = persons.find((person) => person.id === id);
@@ -47,7 +50,7 @@ app.get("/api/persons/:id", (request, response) => {
   }
 });
 
-// DELETE:
+// DELETE: Person by ID
 app.delete("/api/persons/:id", (request, response) => {
   const id = request.params.id;
   persons = persons.filter((person) => person.id !== id);
@@ -58,12 +61,14 @@ app.delete("/api/persons/:id", (request, response) => {
 app.post("/api/persons", (request, response) => {
   const body = request.body;
 
+  //error handling
   if (!body.name || !body.number) {
     return response.status(400).json({
       error: "name or number missing, you need both",
     });
   }
 
+  //error handling
   const nameExists = persons.some((p) => p.name === body.name);
   if (nameExists) {
     return response.status(400).json({
@@ -71,8 +76,10 @@ app.post("/api/persons", (request, response) => {
     });
   }
 
+  // Generate a random id
   const randomId = Math.floor(Math.random() * 1000000);
 
+  // Add the new person
   const person = {
     id: String(randomId),
     name: body.name,
@@ -83,6 +90,7 @@ app.post("/api/persons", (request, response) => {
   response.json(person);
 });
 
+//port
 const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
