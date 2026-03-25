@@ -21,8 +21,24 @@ mongoose
 
 // Define what a "Person" looks like in the database
 const personSchema = new mongoose.Schema({
-  name: String,
-  number: String,
+  name: {
+    type: String,
+    minLength: 3,
+    required: true,
+  },
+  number: {
+    type: String,
+    minLength: 8,
+    required: true,
+    validate: {
+      validator: function (v) {
+        // This checks for: 2 or 3 digits, then a hyphen, then more digits
+        return /^\d{2,3}-\d+$/.test(v);
+      },
+      message: (props) =>
+        `${props.value} is not a valid phone number! Use format 09-123456 or 040-123456`,
+    },
+  },
 });
 
 // Modify how data is returned when converted to JSON

@@ -1,140 +1,124 @@
-// Load environment variables from .env file
 require("dotenv").config();
-
-// Import libraries
 const express = require("express");
 const morgan = require("morgan");
-
-// Create Express app
 const app = express();
+const Person = require("./models/person"); // Import our MongoDB 'Person' model
 
-// Import Person model (MongoDB schema)
-const Person = require("./models/person");
+app.use(express.static("dist")); // Serve the frontend (React) files
+app.use(express.json()); // Allow the server to read JSON data from requests
 
-// Serve static frontend files (from "dist" folder)
-app.use(express.static("dist"));
-
-// Parse JSON body from requests (needed for POST/PUT)
-app.use(express.json());
-
-// Create custom Morgan token to log request body
+// 1. MORGAN LOGGING: Shows what we sent to the server in the terminal
 morgan.token("body", (req) => JSON.stringify(req.body));
-
-// Use Morgan middleware to log requests
 app.use(
   morgan(":method :url :status :res[content-length] - :response-time ms :body"),
 );
 
-// GET all persons
-app.get("/api/persons", (request, response) => {
-  Person.find({}).then((persons) => {
-    response.json(persons); // return all persons as JSON
-  });
+// 2. GET ALL: Fetch every person from the database
+app.get("/api/persons", (request, response, next) => {
+  Person.find({})
+    .then((persons) => {
+      response.json(persons);
+    })
+    .catch((error) => next(error)); // If DB fails, tell the error handler
 });
 
-// GET info (count + current date)
-app.get("/info", (request, response) => {
-  Person.countDocuments({}).then((count) => {
-    const date = new Date();
-    response.send(`
-      <p>Phonebook has info for ${count} people</p>
-      <p>${date}</p>
-    `);
-  });
+// 3. GET INFO: Shows how many people are in the phonebook
+app.get("/info", (request, response, next) => {
+  Person.countDocuments({})
+    .then((count) => {
+      const date = new Date();
+      response.send(
+        `<p>Phonebook has info for ${count} people</p><p>${date}</p>`,
+      );
+    })
+    .catch((error) => next(error));
 });
 
-// GET one person by ID
+// 4. GET ONE: Find a specific person by their ID
 app.get("/api/persons/:id", (request, response, next) => {
   Person.findById(request.params.id)
     .then((person) => {
       if (person) {
-        response.json(person); // found → return it
+        response.json(person);
       } else {
-        response.status(404).end(); // not found
+        response.status(404).end(); // If ID is valid format but not found
       }
     })
-    .catch((error) => next(error)); // pass error to error handler
+    .catch((error) => next(error)); // If ID is totally malformed
 });
 
-// DELETE a person by ID
+// 5. DELETE: Remove a person from the database
 app.delete("/api/persons/:id", (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
-    .then((result) => {
-      response.status(204).end(); // success, no content
+    .then(() => {
+      response.status(204).end(); // 204 means "Success, nothing more to say"
     })
-    .catch((error) => next(error)); // handle errors
+    .catch((error) => next(error));
 });
 
-// CREATE a new person
+// 6. POST: Create a new person
 app.post("/api/persons", (request, response, next) => {
   const body = request.body;
 
-  // Check if name or number is missing
+  // Manual check for missing data
   if (!body.name || !body.number) {
     return response.status(400).json({ error: "name or number missing" });
   }
 
-  // Check if name already exists
+  // Check for duplicate names
   Person.findOne({ name: body.name })
     .then((existingPerson) => {
       if (existingPerson) {
+        // This is where we send a nice error instead of crashing!
         return response.status(400).json({ error: "name must be unique" });
       }
 
-      // Create new person object
       const person = new Person({
         name: body.name,
         number: body.number,
       });
 
-      return person.save(); // save to database
+      return person.save(); // Save the new person
     })
     .then((savedPerson) => {
       if (savedPerson) {
-        response.json(savedPerson); // return saved person
+        response.json(savedPerson); // Return the person (including the new ID)
       }
     })
-    .catch((error) => next(error)); // catch any database errors
+    .catch((error) => next(error));
 });
 
-// UPDATE a person by ID
+// 7. PUT: Update an existing person's number
 app.put("/api/persons/:id", (request, response, next) => {
-  const body = request.body;
+  const { name, number } = request.body;
 
-  // New updated data
-  const person = {
-    name: body.name,
-    number: body.number,
-  };
-
-  // Find and update
-  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+  Person.findByIdAndUpdate(
+    request.params.id,
+    { name, number },
+    { returnDocument: "after", runValidators: true, context: "query" },
+  )
     .then((updatedPerson) => {
-      if (updatedPerson) {
-        response.json(updatedPerson); // return updated person
-      } else {
-        response.status(404).end(); // not found
-      }
+      response.json(updatedPerson);
     })
-    .catch((error) => next(error)); // handle errors
+    .catch((error) => next(error)); // This sends validation errors to your error handler!
 });
 
-// ERROR HANDLER (catches errors from all routes)
+// 8. ERROR HANDLER: The central hub for all problems
 const errorHandler = (error, request, response, next) => {
-  console.error(error.message);
+  console.error("Error Message:", error.message);
 
-  // If ID format is invalid (not MongoDB ObjectId)
   if (error.name === "CastError") {
     return response.status(400).send({ error: "malformatted id" });
+  } else if (error.name === "ValidationError") {
+    // This catches the 'name too short' or 'number too short' errors
+    return response.status(400).json({ error: error.message });
   }
 
-  next(error); // pass to default error handler if not handled
+  next(error); // Pass any unknown errors to Express default handler
 };
 
-// Use the error handler
 app.use(errorHandler);
 
-// port
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
