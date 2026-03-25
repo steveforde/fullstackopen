@@ -1,23 +1,23 @@
 // Import mongoose library (used to connect to MongoDB)
-const mongoose = require("mongoose");
+const mongoose = require('mongoose')
 
 // Turn off strict query warnings (keeps things simple)
-mongoose.set("strictQuery", false);
+mongoose.set('strictQuery', false)
 
 // Get the MongoDB connection URL from environment variables
-const url = process.env.MONGODB_URI;
+const url = process.env.MONGODB_URI
 
-console.log("connecting to MongoDB...");
+console.log('connecting to MongoDB...')
 
 // Connect to MongoDB
 mongoose
-  .connect(url, { family: 4 }) // family: 4 forces IPv4 (avoids some network issues)
-  .then((result) => {
-    console.log("connected to MongoDB"); // Runs if connection is successful
+  .connect(url, { family: 4 }) // force IPv4 (avoids some network issues)
+  .then(() => {
+    console.log('connected to MongoDB') // success
   })
   .catch((error) => {
-    console.log("error connecting to MongoDB:", error.message); // Runs if error
-  });
+    console.error('error connecting to MongoDB:', error.message) // error
+  })
 
 // Define what a "Person" looks like in the database
 const personSchema = new mongoose.Schema({
@@ -32,26 +32,26 @@ const personSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator: function (v) {
-        // This checks for: 2 or 3 digits, then a hyphen, then more digits
-        return /^\d{2,3}-\d+$/.test(v);
+        // Must be 2 or 3 digits, dash, then numbers (e.g. 09-123456)
+        return /^\d{2,3}-\d+$/.test(v)
       },
       message: (props) =>
         `${props.value} is not a valid phone number! Use format 09-123456 or 040-123456`,
     },
   },
-});
+})
 
 // Modify how data is returned when converted to JSON
-personSchema.set("toJSON", {
+personSchema.set('toJSON', {
   transform: (document, returnedObject) => {
-    // Change _id to id (easier to use)
-    returnedObject.id = returnedObject._id.toString();
+    // Change _id to id
+    returnedObject.id = returnedObject._id.toString()
 
-    // Remove MongoDB-specific fields we don't want to show
-    delete returnedObject._id;
-    delete returnedObject.__v;
+    // Remove MongoDB internal fields
+    delete returnedObject._id
+    delete returnedObject.__v
   },
-});
+})
 
 // Export the model so other files can use it
-module.exports = mongoose.model("Person", personSchema);
+module.exports = mongoose.model('Person', personSchema)
