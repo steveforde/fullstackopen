@@ -21,7 +21,6 @@ const App = () => {
   const addName = (event) => {
     event.preventDefault();
 
-    // 1. THE GUARD: Prevent empty inputs
     if (newName === "" || newNumber === "") {
       alert("Please enter both a name and a phone number");
       return;
@@ -31,7 +30,7 @@ const App = () => {
       (p) => p.name.trim().toLowerCase() === newName.trim().toLowerCase(),
     );
 
-    // 2. THE SWITCHER: If person exists, Update. If not, Create.
+    // 1. UPDATE PATH
     if (existingPerson) {
       if (
         window.confirm(`${newName} is already added. Replace the old number?`)
@@ -41,7 +40,6 @@ const App = () => {
         personService
           .update(existingPerson.id, changedPerson)
           .then((returnedPerson) => {
-            // THE TRIPLETS: Using .map to replace one item in the list
             setPersons(
               persons.map((p) =>
                 p.id !== existingPerson.id ? p : returnedPerson,
@@ -52,37 +50,45 @@ const App = () => {
             setNewName("");
             setNewNumber("");
           })
-          .catch(() => {
-            setMessage(
-              `Error: Information of ${existingPerson.name} was already removed from server`,
-            );
+          .catch((error) => {
+            // NEW: This checks if the error is a Mongoose Validation error first
+            if (error.response && error.response.data.error) {
+              setMessage(`Error: ${error.response.data.error}`);
+            } else {
+              setMessage(
+                `Error: Information of ${existingPerson.name} was already removed from server`,
+              );
+              setPersons(persons.filter((p) => p.id !== existingPerson.id));
+            }
             setTimeout(() => setMessage(null), 7000);
-            setPersons(persons.filter((p) => p.id !== existingPerson.id));
-            setNewName("");
-            setNewNumber("");
           });
       }
       return;
     }
 
-    // CREATE PATH: For brand new entries
+    // 2. CREATE PATH
     const nameObject = { name: newName, number: newNumber };
 
-    personService.create(nameObject).then((returnedPerson) => {
-      // THE TRIPLETS: Using .concat to add to the list
-      setPersons(persons.concat(returnedPerson));
-      setMessage(`Added ${newName}`);
-      setTimeout(() => setMessage(null), 7000);
-      setNewName("");
-      setNewNumber("");
-    });
+    personService
+      .create(nameObject)
+      .then((returnedPerson) => {
+        setPersons(persons.concat(returnedPerson));
+        setMessage(`Added ${newName}`);
+        setTimeout(() => setMessage(null), 7000);
+        setNewName("");
+        setNewNumber("");
+      })
+      .catch((error) => {
+        // NEW: Displays the "Name too short" or "Number too short" message from Backend
+        setMessage(`Error: ${error.response.data.error}`);
+        setTimeout(() => setMessage(null), 7000);
+      });
   };
 
   const removePerson = (id) => {
     const person = persons.find((p) => p.id === id);
     if (window.confirm(`Delete ${person.name}?`)) {
       personService.remove(id).then(() => {
-        // THE TRIPLETS: Using .filter to remove an item
         setPersons(persons.filter((p) => p.id !== id));
       });
     }
