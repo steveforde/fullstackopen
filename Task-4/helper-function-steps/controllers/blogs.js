@@ -1,60 +1,74 @@
-const blogsRouter = require("express").Router(); // 1. Router name is fine, but we'll use it for blogs
-const Blog = require("../models/blog"); // 2. Change 'Person' to 'Blog' and path to '../models/blog'
+// 1. Create a Router object from Express.
+// This lets us define routes here and "plug" them into app.js later.
+const blogsRouter = require("express").Router();
 
-// GET all blogs
+// 2. Import the Blog model (the blueprint we made in models/blog.js)
+const Blog = require("../models/blog");
+
+// --- GET All Blogs ---
 blogsRouter.get("/", (request, response) => {
+  // Use Mongoose .find({}) to get every single document in the collection
   Blog.find({}).then((blogs) => {
-    // 3. Use Blog models
+    // Send back the array of blogs as JSON
     response.json(blogs);
   });
 });
 
-// GET single blog by ID
+// --- GET Single Blog by ID ---
 blogsRouter.get("/:id", (request, response, next) => {
-  Blog.findById(request.params.id) // 4. Use Blog model
+  // ':id' is a parameter we get from the URL (request.params.id)
+  Blog.findById(request.params.id)
     .then((blog) => {
       if (blog) {
+        // If the blog exists, send it back
         response.json(blog);
       } else {
+        // If the ID is valid but doesn't exist, send 404 (Not Found)
         response.status(404).end();
       }
     })
+    // If the ID is malformed, jump to the Error Handler middleware
     .catch((error) => next(error));
 });
 
-// POST a new blog
+// --- POST (Create) a New Blog ---
 blogsRouter.post("/", (request, response, next) => {
-  const body = request.body;
+  const body = request.body; // The data sent by the user
 
+  // Create a new instance of the Blog model
   const blog = new Blog({
-    // 5. Create new Blog instance
-    title: body.title, // 6. Use Blog fields (title, author, url, likes)
+    title: body.title,
     author: body.author,
     url: body.url,
-    likes: body.likes || 0, // Default to 0 likes if not provided
+    likes: body.likes || 0, // Fallback: if no likes provided, set to 0
   });
 
+  // Save to MongoDB
   blog
     .save()
     .then((savedBlog) => {
-      response.status(201).json(savedBlog); // Exercise 4.1 asks for status 201
+      // 201 means "Created Successfully"
+      response.status(201).json(savedBlog);
     })
     .catch((error) => next(error));
 });
 
-// DELETE a blog
+// --- DELETE a Blog ---
 blogsRouter.delete("/:id", (request, response, next) => {
-  Blog.findByIdAndDelete(request.params.id) // 7. Use Blog model
+  Blog.findByIdAndDelete(request.params.id)
     .then(() => {
+      // 204 means "Success, but no content to send back"
       response.status(204).end();
     })
     .catch((error) => next(error));
 });
 
-// PUT (update) a blog
+// --- PUT (Update) a Blog ---
 blogsRouter.put("/:id", (request, response, next) => {
-  const { title, author, url, likes } = request.body; // 8. Destructure Blog fields
+  const { title, author, url, likes } = request.body; // Destructuring the data
 
+  // Find the blog and apply the new data
+  // { new: true } returns the updated document instead of the old one
   Blog.findByIdAndUpdate(
     request.params.id,
     { title, author, url, likes },
@@ -66,4 +80,5 @@ blogsRouter.put("/:id", (request, response, next) => {
     .catch((error) => next(error));
 });
 
-module.exports = blogsRouter; // 9. Export the blogsRouter
+// Export the router so app.js can use it
+module.exports = blogsRouter;
