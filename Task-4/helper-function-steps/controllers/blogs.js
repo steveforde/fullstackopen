@@ -4,7 +4,7 @@ const Blog = require("../models/blog"); // 2. Change 'Person' to 'Blog' and path
 // GET all blogs
 blogsRouter.get("/", (request, response) => {
   Blog.find({}).then((blogs) => {
-    // 3. Use Blog model
+    // 3. Use Blog models
     response.json(blogs);
   });
 });

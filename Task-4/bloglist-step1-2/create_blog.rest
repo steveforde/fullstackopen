@@ -1,9 +1,0 @@
-POST http://localhost:3003/api/blogs
-Content-Type: application/json
-
-{
-  "title": "Learning Node in Limerick",
-  "author": "Steve Forde",
-  "url": "http://fullstackopen.com",
-  "likes": 50
-}
