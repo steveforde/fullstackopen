@@ -4,11 +4,15 @@ const app = express();
 
 app.use(express.json());
 
-// 1. DEFINE THE TOKEN FIRST
+// 1. DEFINING A CUSTOM TOKEN
+// We tell Morgan: "Whenever you see :body, run this function."
+// It takes the request (req.body) and turns it into a readable string.
 morgan.token("body", (req, res) => {
   return JSON.stringify(req.body);
 });
 
+// 2. APPLYING THE CUSTOM FORMAT
+// We manually list the pieces of info we want, ending with our new :body token.
 app.use(
   morgan(":method :url :status :res[content-length] - :response-time ms :body"),
 );

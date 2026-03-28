@@ -64,8 +64,12 @@ app.post("/api/persons", (request, response) => {
     });
   }
 
+  // 1. Validation Logic for POST
+  // We use .some() which returns true as soon as it finds one match.
+  // This is more efficient than .find() if we only need to know 'if' it exists.
   const nameExists = persons.some((p) => p.name === body.name);
   if (nameExists) {
+    // 400 Bad Request: The user tried to create a duplicate name.
     return response.status(400).json({
       error: "name must be unique",
     });

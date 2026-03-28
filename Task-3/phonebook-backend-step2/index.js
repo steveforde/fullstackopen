@@ -22,11 +22,17 @@ app.get("/api/persons", (request, response) => {
   response.json(persons);
 });
 
-// Route to get info
+// Route to get summary info about the Phonebook
 app.get("/info", (request, response) => {
+  // 1. Calculate how many objects are currently in our 'persons' array
   const count = persons.length;
+
+  // 2. Generate a new Date object representing the exact moment of the request
   const date = new Date();
 
+  // 3. We use .send() instead of .json() here because we are sending
+  // raw HTML content back to the browser rather than a data object.
+  // The backticks allow us to use ${} to insert our variables.
   response.send(`
     <p>Phonebook has info for ${count} people</p>
     <p>${date}</p>

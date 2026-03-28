@@ -45,10 +45,19 @@ app.get("/api/persons/:id", (request, response) => {
   }
 });
 
-// Route to delete a person
+// Route to delete a single person's entry
 app.delete("/api/persons/:id", (request, response) => {
+  // 1. Capture the ID from the URL parameters
   const id = request.params.id;
+
+  // 2. We overwrite the 'persons' array with a new version.
+  // .filter() creates a new array containing only the items
+  // where the condition (person.id !== id) is TRUE.
   persons = persons.filter((person) => person.id !== id);
+
+  // 3. Status 204 means "No Content".
+  // Even if the ID didn't exist in the first place,
+  // we usually return 204 to say the end state (item is gone) is achieved.
   response.status(204).end();
 });
 

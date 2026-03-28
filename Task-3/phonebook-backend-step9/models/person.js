@@ -1,38 +1,39 @@
-// Import mongoose library (used to connect to MongoDB)
+// 1. Import mongoose library (used to connect to MongoDB)
 const mongoose = require('mongoose')
 
-// Turn off strict query warnings (keeps things simple)
+// 2. Turn off strict query warnings (keeps things simple and avoids console noise)
 mongoose.set('strictQuery', false)
 
-// Get the MongoDB connection URL from environment variables
+// 3. Get the MongoDB connection URL from environment variables (.env file)
 const url = process.env.MONGODB_URI
 
 console.log('connecting to MongoDB...')
 
-// Connect to MongoDB
+// 4. Connect to MongoDB using the URL
+// { family: 4 } forces IPv4, which often fixes connection timeouts on modern networks
 mongoose
-  .connect(url, { family: 4 }) // force IPv4 (avoids some network issues)
+  .connect(url, { family: 4 })
   .then(() => {
-    console.log('connected to MongoDB') // success
+    console.log('connected to MongoDB') // Success message for the terminal
   })
   .catch((error) => {
-    console.error('error connecting to MongoDB:', error.message) // error
+    console.error('error connecting to MongoDB:', error.message) // Logs the specific error
   })
 
-// Define what a "Person" looks like in the database
+// 5. Define the Schema: This is the "Blueprint" for every person in the database
 const personSchema = new mongoose.Schema({
   name: {
     type: String,
-    minLength: 3,
-    required: true,
+    minLength: 3, // Validation: Name must be 3+ characters (e.g. 'Ada')
+    required: true, // Validation: You cannot save a person without a name
   },
   number: {
     type: String,
-    minLength: 8,
-    required: true,
+    minLength: 8, // Validation: Number must be 8+ characters total
+    required: true, // Validation: Number is mandatory
     validate: {
       validator: function (v) {
-        // Must be 2 or 3 digits, dash, then numbers (e.g. 09-123456)
+        // Regex: 2 or 3 digits, a dash, then more digits (e.g. 061-123456)
         return /^\d{2,3}-\d+$/.test(v)
       },
       message: (props) =>
@@ -41,17 +42,17 @@ const personSchema = new mongoose.Schema({
   },
 })
 
-// Modify how data is returned when converted to JSON
+// 6. Data Transformation: Customize how the data looks when sent to the frontend
 personSchema.set('toJSON', {
   transform: (document, returnedObject) => {
-    // Change _id to id
+    // MongoDB uses '_id' (an object). We convert it to a simple string named 'id'
     returnedObject.id = returnedObject._id.toString()
 
-    // Remove MongoDB internal fields
+    // Delete the MongoDB-specific internal fields so the API response is clean
     delete returnedObject._id
     delete returnedObject.__v
   },
 })
 
-// Export the model so other files can use it
+// 7. Export the model so it can be imported in index.js or other controller files
 module.exports = mongoose.model('Person', personSchema)

@@ -54,26 +54,40 @@ app.delete("/api/persons/:id", (request, response) => {
   response.status(204).end();
 });
 
-// Route to add a person
+// Route to add a new entry to the phonebook
 app.post("/api/persons", (request, response) => {
   const body = request.body;
 
+  // 1. Validation Check:
+  // If the user forgot the name or the number, we stop immediately.
+  // We use 'return' so the rest of the function doesn't run.
   if (!body.name || !body.number) {
+    // 400 Bad Request: The client sent us incomplete data
     return response.status(400).json({
       error: "name or number missing",
     });
   }
 
-  // Generate a random id
+  // 2. ID Generation:
+  // Since we don't have a database yet, we create a large random number.
+  // We wrap it in String() because our existing IDs are strings.
   const randomId = Math.floor(Math.random() * 1000000);
 
+  // 3. Object Creation:
+  // We build the new person object using the data from 'body'
   const person = {
     id: String(randomId),
     name: body.name,
     number: body.number,
   };
 
+  // 4. Updating the State:
+  // .concat() is used instead of .push() because it creates a
+  // NEW array, which is a cleaner way to handle data updates.
   persons = persons.concat(person);
+
+  // 5. Success Response:
+  // We send back the newly created person object
   response.json(person);
 });
 

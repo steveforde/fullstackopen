@@ -33,14 +33,22 @@ app.get("/info", (request, response) => {
   `);
 });
 
-// Route to get one person
+// Route to fetch a single person's details by their ID
 app.get("/api/persons/:id", (request, response) => {
+  // 1. Capture the 'id' from the URL (the :id part)
   const id = request.params.id;
+
+  // 2. Search our local array for a person whose ID matches the one in the URL
+  // .find() returns the first item that matches the condition
   const person = persons.find((person) => person.id === id);
 
+  // 3. Logic check: Did we actually find a matching person?
   if (person) {
+    // If yes, send the person object back as JSON
     response.json(person);
   } else {
+    // If no, send a 404 status code and end the request
+    // This tells the user "That ID doesn't exist here"
     response.status(404).end();
   }
 });

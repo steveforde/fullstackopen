@@ -1,8 +1,12 @@
 const express = require("express");
+// 1. Import Morgan - a popular HTTP request logger middleware
 const morgan = require("morgan");
 const app = express();
 
 app.use(express.json());
+// 2. Use the 'tiny' configuration.
+// This tells Morgan to log only the essentials:
+// Method, URL, Status, Response Time, and Content Length.
 //add the morgan middleware
 app.use(morgan("tiny"));
 
