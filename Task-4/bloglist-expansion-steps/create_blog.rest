@@ -1,0 +1,31 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "Learning express in Limerick",
+  "author": "Steve Forde",
+  "url": "http://fullstackopen.com",
+  "likes": 100
+}
+
+###
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "Programming in Limerick is tough",
+  "author": "Steve Forde",
+  "url": "http://fullstackopen.com",
+  "likes": 100
+}
+
+###
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "My site gone live in render",
+  "author": "Steve Forde",
+  "url": "http://fullstackopen.com",
+  "likes": 100
+}

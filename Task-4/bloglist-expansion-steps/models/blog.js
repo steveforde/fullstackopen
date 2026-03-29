@@ -5,7 +5,7 @@ const mongoose = require('mongoose')
 const blogSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: true, // If the user sends a POST without a title,
+    required: true,  //If the user sends a POST without a title,
     // Mongoose will "REJECT" it and trigger that 400 Bad Request.
   },
   author: String,
@@ -21,8 +21,8 @@ const blogSchema = new mongoose.Schema({
 })
 
 // 2. THE TRANSFORMER (The Cleaning Crew)
-// MongoDB stores IDs as an object called _id. Frontend developers (and the course)
-// prefer a simple string called 'id'. This block fixes that.
+// MongoDB stores IDs as an object called _id.
+//  prefer a simple string called 'id'. This block fixes that.
 blogSchema.set('toJSON', {
   transform: (document, returnedObject) => {
     // We create a new 'id' field from the weird MongoDB '_id'
