@@ -1,5 +1,7 @@
 // 1. Import our custom logger to print messages to the terminal
 const logger = require('./logger')
+const jwt = require('jsonwebtoken')
+const User = require('../models/user')
 
 // 2. The Request Logger: Prints details of every incoming request
 // 'next' is a function that tells Express to move to the next middleware
@@ -17,21 +19,55 @@ const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
 }
 
+const tokenExtractor = (request, response, next) => {
+  const authorization = request.get('authorization')
+
+  if (authorization && authorization.startsWith('Bearer ')) {
+    // We attach the token directly to the request object!
+    request.token = authorization.replace('Bearer ', '')
+  } else {
+    request.token = null
+  }
+
+  // Very important: move to the next piece of code
+  next()
+}
+
+const userExtractor = async (request, response, next) => {
+  if (request.token) {
+    const decodedToken = jwt.verify(request.token, process.env.SECRET)
+    if (decodedToken.id) {
+      request.user = await User.findById(decodedToken.id)
+    }
+  }
+  next()
+}
+
 // 4. Error Handler: The final safety net for the whole app
 // This function has FOUR parameters (error, request, response, next)
 const errorHandler = (error, request, response, next) => {
-  logger.error(error.message) // Print the actual error message for the dev
+  logger.error(error.message)
 
-  // Handle specific MongoDB errors
   if (error.name === 'CastError') {
-    // Usually happens when an ID in the URL is the wrong format (too short/long)
     return response.status(400).send({ error: 'malformatted id' })
   } else if (error.name === 'ValidationError') {
-    // Happens if the user tries to save a blog without a title or URL
     return response.status(400).json({ error: error.message })
+  } else if (
+    error.name === 'MongoServerError' &&
+    error.message.includes('E11000 duplicate key error')
+  ) {
+    // This catches if someone tries to pick a username that's already taken
+    return response
+      .status(400)
+      .json({ error: 'expected `username` to be unique' })
+  } else if (error.name === 'JsonWebTokenError') {
+    // This catches missing or messed up tokens
+    return response.status(401).json({ error: 'token missing or invalid' })
+  } else if (error.name === 'TokenExpiredError') {
+    // This catches tokens that are too old
+    return response.status(401).json({ error: 'token expired' })
   }
 
-  // If it's an error we didn't expect, pass it to the default Express error handler
   next(error)
 }
 
@@ -40,4 +76,6 @@ module.exports = {
   requestLogger,
   unknownEndpoint,
   errorHandler,
+  tokenExtractor,
+  userExtractor,
 }

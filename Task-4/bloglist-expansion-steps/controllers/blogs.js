@@ -7,6 +7,7 @@ const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 
 const User = require('../models/user') // 1. Don't forget to import the User model!
+const jwt = require('jsonwebtoken') // Top of file
 
 // --- EXERCISE 4.8: FETCHING THE LIST ---
 // We use 'async' because talking to a database takes time.
@@ -16,35 +17,51 @@ blogsRouter.get('/', async (request, response) => {
   response.json(blogs)
 })
 
-// --- EXERCISE 4.10: SAVING A NEW ENTRY ---
+// --- EXERCISE 4.10 & 4.19: SAVING A NEW ENTRY ---
 blogsRouter.post('/', async (request, response) => {
-  const body = request.body
+  const user = request.user // Already found by middleware!
 
-  // 2. Fetch all users and just pick the first one from the list
-  const users = await User.find({})
-  const user = users[0]
+  if (!user) {
+    return response.status(401).json({ error: 'token missing or invalid' })
+  }
 
   const blog = new Blog({
-    title: body.title,
-    author: body.author,
-    url: body.url,
-    likes: body.likes || 0,
-    user: user.id, // 3. Put the User's ID into the blog
+    title: request.body.title,
+    author: request.body.author,
+    url: request.body.url,
+    likes: request.body.likes || 0,
+    user: user.id,
   })
 
   const savedBlog = await blog.save()
-
-  // 4. IMPORTANT: Update the User's list of blogs too!
   user.blogs = user.blogs.concat(savedBlog._id)
   await user.save()
-
   response.status(201).json(savedBlog)
 })
 
 // 4.13: DELETE a single blog
+// 4.13 & 4.21: DELETE a single blog
 blogsRouter.delete('/:id', async (request, response) => {
+  const user = request.user // 1. Middleware already found the user for us!
+
+  if (!user) {
+    return response.status(401).json({ error: 'token missing or invalid' })
+  }
+
+  const blog = await Blog.findById(request.params.id)
+
+  if (!blog) {
+    return response.status(404).json({ error: 'blog not found' })
+  }
+
+  // 2. Compare the blog creator's ID with the ID of the user from the token
+  if (blog.user.toString() !== user.id.toString()) {
+    return response
+      .status(401)
+      .json({ error: 'only the creator can delete this blog' })
+  }
+
   await Blog.findByIdAndDelete(request.params.id)
-  // 204 No Content is the standard for a successful deletion
   response.status(204).end()
 })
 

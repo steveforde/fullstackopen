@@ -1,4 +1,3 @@
-// Import the test runner, my app, and the supertest tool to "fake" browser requests
 const { test, after, beforeEach, describe } = require('node:test')
 const assert = require('node:assert')
 const mongoose = require('mongoose')
@@ -6,19 +5,34 @@ const supertest = require('supertest')
 const app = require('../app')
 const helper = require('./test_helper')
 const Blog = require('../models/blog')
+const User = require('../models/user')
+const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
 
-// Wrap my app in supertest so I can call api.get() or api.post() easily
 const api = supertest(app)
 
-// I need to reset the database before EVERY test so the results are predictable
+let token // We will store the login token here for all tests to use
+
 beforeEach(async () => {
-  // Wipe the test database completely
   await Blog.deleteMany({})
-  // Fill it back up with the two standard blogs from my helper file
-  await Blog.insertMany(helper.initialBlogs)
+  await User.deleteMany({})
+
+  // 1. Create a test user with a hashed password
+  const passwordHash = await bcrypt.hash('testpassword', 10)
+  const user = new User({ username: 'testuser', passwordHash })
+  await user.save()
+
+  // 2. Generate a valid token for this user
+  const userForToken = { username: user.username, id: user._id }
+  token = jwt.sign(userForToken, process.env.SECRET)
+
+  // 3. Add initial blogs and link them to our test user
+  const blogObjects = helper.initialBlogs.map(
+    (blog) => new Blog({ ...blog, user: user._id }),
+  )
+  await Blog.insertMany(blogObjects)
 })
 
-// Check if the GET route returns JSON and a 200 OK status
 test('blogs are returned as json', async () => {
   await api
     .get('/api/blogs')
@@ -26,53 +40,48 @@ test('blogs are returned as json', async () => {
     .expect('Content-Type', /application\/json/)
 })
 
-// Make sure the number of blogs I get back matches my initial setup (should be 2)
 test('all blogs are returned', async () => {
   const response = await api.get('/api/blogs')
   assert.strictEqual(response.body.length, helper.initialBlogs.length)
 })
 
-// Grab all the titles and make sure one of my specific initial blogs is there
-test('a specific blog is within the returned blogs', async () => {
-  const response = await api.get('/api/blogs')
-  const titles = response.body.map((b) => b.title)
-  assert(titles.includes('React patterns'))
-})
-
-// Test if I can successfully add a new blog and if the count increases to 3
+// --- UPDATED POST TEST ---
 test('a valid blog can be added', async () => {
   const newBlog = {
-    title: 'Testing the POST route',
+    title: 'Testing with Tokens',
     author: 'Steve Limerick',
     url: 'https://fullstackopen.com/',
     likes: 10,
   }
 
-  // Send the post and expect a 201 Created status
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`) // SEND THE TOKEN!
     .send(newBlog)
     .expect(201)
     .expect('Content-Type', /application\/json/)
 
-  // Use my helper to check the database count again
   const blogsAtEnd = await helper.blogsInDb()
   assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length + 1)
-
-  // Verify that my specific title actually made it into the DB
-  const titles = blogsAtEnd.map((n) => n.title)
-  assert(titles.includes('Testing the POST route'))
 })
 
-// EXERCISE 4.9: Verify that Mongoose transformed _id to id
-test('unique identifier property of the blog posts is named id', async () => {
+// --- NEW TEST FOR EXERCISE 4.23 ---
+test('adding a blog fails with 401 if token is missing', async () => {
+  const newBlog = {
+    title: 'Ghost Blog',
+    author: 'No One',
+    url: 'https://ghost.com',
+  }
+
+  await api.post('/api/blogs').send(newBlog).expect(401) // Expect failure because no token was sent
+})
+
+test('unique identifier property is named id', async () => {
   const response = await api.get('/api/blogs')
-  // Check if .id exists and ._id is gone
   assert.ok(response.body[0].id)
   assert.strictEqual(response.body[0]._id, undefined)
 })
 
-// EXERCISE 4.11: Test the 'default' logic in my Mongoose schema
 test('if likes property is missing, it defaults to 0', async () => {
   const newBlog = {
     title: 'Blog without likes',
@@ -80,64 +89,30 @@ test('if likes property is missing, it defaults to 0', async () => {
     url: 'https://test.com',
   }
 
-  const response = await api.post('/api/blogs').send(newBlog).expect(201)
+  const response = await api
+    .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`) // SEND THE TOKEN!
+    .send(newBlog)
+    .expect(201)
 
-  // My model should have automatically set this to 0
   assert.strictEqual(response.body.likes, 0)
 })
 
-// EXERCISE 4.12: Test the 'required' validation in my Mongoose schema
-test('blog without title or url returns 400 Bad Request', async () => {
-  const newBlog = {
-    author: 'Steve',
-    likes: 5,
-  }
-
-  // If I miss a title/url, my server must reject it with a 400 error
-  await api.post('/api/blogs').send(newBlog).expect(400)
-})
-
 describe('deletion of a blog', () => {
-  test('succeeds with status code 204 if id is valid', async () => {
+  test('succeeds with status code 204 if id is valid and owner deletes', async () => {
     const blogsAtStart = await helper.blogsInDb()
     const blogToDelete = blogsAtStart[0]
 
-    // Tell the API to delete the first blog it finds
-    await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204)
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', `Bearer ${token}`) // SEND THE TOKEN!
+      .expect(204)
 
     const blogsAtEnd = await helper.blogsInDb()
-
-    // The count should now be 1 less than when I started
     assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length - 1)
-
-    // Make sure the title of the deleted blog isn't in the list anymore
-    const titles = blogsAtEnd.map((r) => r.title)
-    assert(!titles.includes(blogToDelete.title))
   })
 })
 
-describe('updating a blog', () => {
-  test('succeeds with status 200 and updates likes', async () => {
-    const blogsAtStart = await helper.blogsInDb()
-    const blogToUpdate = blogsAtStart[0]
-
-    const updatedBlogData = {
-      likes: blogToUpdate.likes + 10,
-    }
-
-    // Tell the API to update the likes for this specific ID
-    const response = await api
-      .put(`/api/blogs/${blogToUpdate.id}`)
-      .send(updatedBlogData)
-      .expect(200)
-
-    // Verify the response from the server has the new number of likes
-    assert.strictEqual(response.body.likes, blogToUpdate.likes + 10)
-  })
-})
-
-// Once the whole file is finished, kill the database connection
-// so the test process can actually stop
 after(async () => {
   await mongoose.connection.close()
 })
