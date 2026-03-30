@@ -7,6 +7,7 @@ const blogsRouter = require('./controllers/blogs') // The rules for /api/blogs
 const middleware = require('./utils/middleware') // Our custom 'checkpoint' functions
 const logger = require('./utils/logger') // Our custom console printer
 const mongoose = require('mongoose') // The tool that talks to MongoDB
+const usersRouter = require('./controllers/users')
 
 // 2. Database Connection Setup
 mongoose.set('strictQuery', false) // Preparation for Mongoose updates
@@ -33,6 +34,7 @@ app.use(middleware.requestLogger) // Print details of every request to the conso
 // 4. Routes (The Traffic Controller)
 // Any request starting with /api/blogs is handed over to the blogsRouter
 app.use('/api/blogs', blogsRouter)
+app.use('/api/users', usersRouter)
 
 // 5. Error Handling (The Safety Net)
 // These only run if the request didn't match a route or if something crashed

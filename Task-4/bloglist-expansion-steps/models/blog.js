@@ -5,7 +5,7 @@ const mongoose = require('mongoose')
 const blogSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: true,  //If the user sends a POST without a title,
+    required: true, //If the user sends a POST without a title,
     // Mongoose will "REJECT" it and trigger that 400 Bad Request.
   },
   author: String,
@@ -18,7 +18,12 @@ const blogSchema = new mongoose.Schema({
     default: 0, // This is the "Safety Net". If the user
     // sends nothing for likes, Mongoose automatically plugs in 0.
   },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
 })
+
 
 // 2. THE TRANSFORMER (The Cleaning Crew)
 // MongoDB stores IDs as an object called _id.

@@ -6,30 +6,38 @@ const blogsRouter = require('express').Router()
 // This tells the code what a Blog is allowed to look like (Title, URL, etc.)
 const Blog = require('../models/blog')
 
+const User = require('../models/user') // 1. Don't forget to import the User model!
+
 // --- EXERCISE 4.8: FETCHING THE LIST ---
 // We use 'async' because talking to a database takes time.
 blogsRouter.get('/', async (request, response) => {
-  // 'await' tells the code: "Pause here. Go to MongoDB, find every blog,
-  // and don't move to the next line until you have them in your hand."
-  const blogs = await Blog.find({})
+  const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 }) // This "joins" the user data
 
-  // Once the blogs are here, we send them back to the user as a JSON list.
   response.json(blogs)
 })
 
 // --- EXERCISE 4.10: SAVING A NEW ENTRY ---
 blogsRouter.post('/', async (request, response) => {
-  // We take the "package" (request.body) the user sent us
-  // and wrap it in our Blog blueprint.
-  const blog = new Blog(request.body)
+  const body = request.body
 
-  // 'await' again: We tell the database to save this new blog.
-  // If the title or URL is missing, the Model we built will
-  // throw an error right here, and Express 5 will handle it.
+  // 2. Fetch all users and just pick the first one from the list
+  const users = await User.find({})
+  const user = users[0]
+
+  const blog = new Blog({
+    title: body.title,
+    author: body.author,
+    url: body.url,
+    likes: body.likes || 0,
+    user: user.id, // 3. Put the User's ID into the blog
+  })
+
   const savedBlog = await blog.save()
 
-  // 201 means "Created". We send the successfully saved blog
-  // back so the user knows exactly what was stored.
+  // 4. IMPORTANT: Update the User's list of blogs too!
+  user.blogs = user.blogs.concat(savedBlog._id)
+  await user.save()
+
   response.status(201).json(savedBlog)
 })
 

@@ -29,3 +29,17 @@ Content-Type: application/json
   "url": "http://fullstackopen.com",
   "likes": 100
 }
+
+###
+GET http://localhost:3003/api/blogs
+
+###
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "Living in Carlow",
+  "author": "Sarah",
+  "url": "https://visitcarlow.ie",
+  "likes": 25
+}
