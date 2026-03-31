@@ -1,7 +1,7 @@
 // 1. Setup: Bring in the testing tools and the logic file I'm actually checking
-const { test, describe } = require('node:test')
-const assert = require('node:assert')
-const listHelper = require('../utils/list_helper')
+const { test, describe } = require('node:test') // Node's built-in test framework
+const assert = require('node:assert') // For making test assertions
+const listHelper = require('../utils/list_helper') // The functions we're testing
 
 // 2. The "Handshake" Test: Just making sure my test runner is talking to my code
 test('dummy returns one', () => {
