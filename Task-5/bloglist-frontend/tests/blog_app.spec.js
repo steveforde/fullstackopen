@@ -1,58 +1,60 @@
 import { test, expect } from '@playwright/test'
 
-// test.describe creates a group of related tests
 test.describe('Blog app', () => {
-  // beforeEach runs before EVERY individual test in this describe block
-  // It sets up the initial state - in this case, opening the homepage
-  test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:5173') // Navigate to frontend
+  test.beforeEach(async ({ page, request }) => {
+    await request.post('http://localhost:3003/api/testing/reset')
+    await request.post('http://localhost:3003/api/users', {
+      data: {
+        username: 'sharon_carlow',
+        name: 'Sharon Carlow',  // Make sure name matches
+        password: 'sharonpassword123',
+      },
+    })
+    await request.post('http://localhost:3003/api/users', {
+      data: {
+        username: 'steve_limerick',
+        name: 'Steve Forde',
+        password: 'secretpassword123',
+      },
+    })
+    await page.goto('http://localhost:5173')
   })
 
-  // Basic test to verify the login form exists on the page
   test('Login form is shown', async ({ page }) => {
-    // expect() makes an assertion - check if text is visible on the page
     await expect(page.getByText('Log in to application')).toBeVisible()
   })
 
-  // Nested describe group for login-related tests
   test.describe('Login', () => {
-    // Before each login test, click the login button to open the form
     test.beforeEach(async ({ page }) => {
       await page.getByRole('button', { name: 'login' }).click()
     })
 
-    // Test successful login with correct username/password
     test('succeeds with correct credentials', async ({ page }) => {
-      // fill() types text into input fields
       await page.getByPlaceholder('username').fill('sharon_carlow')
       await page.getByPlaceholder('password').fill('sharonpassword123')
-      // click() simulates a mouse click on the submit button
       await page.locator('button[type="submit"]').click()
-      // Verify success message appears (case insensitive with /i flag)
-      await expect(page.getByText(/sharon logged in/i)).toBeVisible()
+      // FIX: Use exact text "Sharon Carlow logged in"
+      await expect(page.getByText('Sharon Carlow logged in')).toBeVisible()
     })
 
-    // Test failed login with wrong password
     test('fails with wrong credentials', async ({ page }) => {
       await page.getByPlaceholder('username').fill('sharon_carlow')
       await page.getByPlaceholder('password').fill('wrong')
       await page.locator('button[type="submit"]').click()
-      // Verify error message appears
       await expect(page.getByText('wrong username or password')).toBeVisible()
     })
   })
 
-  // Nested describe for tests that require the user to be logged in
   test.describe('When logged in', () => {
-    // Before each test in this block, log Sharon in
     test.beforeEach(async ({ page }) => {
       await page.getByRole('button', { name: 'login' }).click()
       await page.getByPlaceholder('username').fill('sharon_carlow')
       await page.getByPlaceholder('password').fill('sharonpassword123')
       await page.locator('button[type="submit"]').click()
-      // Verify login was successful before running the actual test
-      await expect(page.getByText(/sharon logged in/i)).toBeVisible()
+      // FIX: Use exact text "Sharon Carlow logged in"
+      await expect(page.getByText('Sharon Carlow logged in')).toBeVisible()
     })
+
 
     // Test creating a new blog post
     test('a new blog can be created', async ({ page }) => {
