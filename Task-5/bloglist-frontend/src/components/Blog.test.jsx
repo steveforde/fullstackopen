@@ -76,6 +76,36 @@ describe('<Blog />', () => {
     expect(screen.getByText(/likes 12/)).toBeDefined()
   })
 
+
+  test("clicking the remove button calls the event handler", async () => {
+    const mockHandler = vi.fn();
+
+    render(
+      <Blog
+        blog={blog}
+        currentUser={currentUser}
+        deleteBlog={mockHandler} // Changed from removeBlog to deleteBlog
+      />,
+    );
+
+    const user = userEvent.setup();
+
+    // 1. Expand the blog to see the remove button
+    const viewButton = screen.getByText("view");
+    await user.click(viewButton);
+
+    // 2. Click the remove button
+    const removeButton = screen.getByText("remove");
+
+    // Mock the window.confirm popup
+    window.confirm = vi.fn(() => true);
+
+    await user.click(removeButton);
+
+    // 3. Verify the handler was called
+    expect(mockHandler.mock.calls).toHaveLength(1);
+  });
+
   // ========== TEST 3: Like Button Handler Called Twice ==========
   // 5.15: Step 3 - Verify that clicking "like" calls the handler correctly
   test('if the like button is clicked twice, the event handler is called twice', async () => {
