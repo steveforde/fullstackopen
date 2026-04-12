@@ -95,13 +95,18 @@ const App = () => {
     }
   };
 
+  // Inside App.jsx
   const updateBlog = async (id, blogObject) => {
     try {
+      // Send only what the backend needs
       const returnedBlog = await blogService.update(id, blogObject);
+
+      // Find the original blog to keep the user object (name, username) in our state
       const blogToUpdate = blogs.find((b) => b.id === id);
       const updatedBlogWithUser = { ...returnedBlog, user: blogToUpdate.user };
+
       setBlogs(blogs.map((b) => (b.id !== id ? b : updatedBlogWithUser)));
-    } catch {
+    } catch (error) {
       notify("Error updating likes", "error");
     }
   };
@@ -117,8 +122,7 @@ const App = () => {
         await blogService.remove(id);
         setBlogs(blogs.filter((b) => b.id !== id));
         notify(`Deleted ${blogToRemove.title}`);
-        navigate("/");
-      } catch {
+      } catch (error) {
         notify("Error deleting blog - are you the owner?", "error");
       }
     }
@@ -218,6 +222,6 @@ const App = () => {
       </Container>
     </Box>
   );
-};
+};;
 
 export default App;

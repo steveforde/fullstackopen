@@ -8,20 +8,16 @@ const Navigation = ({ user, handleLogout }) => {
       sx={{ backgroundColor: "#1976d2", marginBottom: "30px" }}
     >
       <Toolbar>
-        {/* Brand Title (Left side) */}
+        {/* Brand Title */}
         <Typography
           variant="h5"
           component="div"
-          sx={{
-            mr: 4,
-            fontWeight: "bold",
-            display: { xs: "none", sm: "block" },
-          }}
+          sx={{ mr: 4, fontWeight: "bold" }}
         >
           Blog App
         </Typography>
 
-        {/* Navigation Links (Middle) */}
+        {/* Navigation Links */}
         <Box sx={{ flexGrow: 1, display: "flex", gap: 1 }}>
           <Button
             color="inherit"
@@ -31,6 +27,17 @@ const Navigation = ({ user, handleLogout }) => {
           >
             BLOGS
           </Button>
+
+          {/* NEW BLOG link added here to match the screenshot */}
+          <Button
+            color="inherit"
+            component={Link}
+            to="/" // Usually points to the home where the Togglable form is, or a /create route
+            sx={{ fontWeight: "bold" }}
+          >
+            NEW BLOG
+          </Button>
+
           <Button
             color="inherit"
             component={Link}
@@ -41,7 +48,7 @@ const Navigation = ({ user, handleLogout }) => {
           </Button>
         </Box>
 
-        {/* User Info & Logout (Right side) */}
+        {/* User Info & Logout */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <Typography
             variant="body1"

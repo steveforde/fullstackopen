@@ -1,13 +1,5 @@
 import { useParams } from "react-router-dom";
-import {
-  Typography,
-  Button,
-  Paper,
-  Link,
-  Box,
-  Divider,
-  Chip,
-} from "@mui/material";
+import { Typography, Button, Paper, Link, Box, Divider } from "@mui/material";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import DeleteIcon from "@mui/icons-material/Delete";
 
@@ -29,79 +21,69 @@ const BlogDetail = ({ blogs, handleLike, deleteBlog, currentUser }) => {
     const updatedBlog = {
       ...blog,
       likes: (blog.likes || 0) + 1,
-      user: blog.user.id || blog.user, // Maintain user reference consistency
+      user: blog.user.id || blog.user,
     };
     handleLike(blog.id, updatedBlog);
   };
 
   return (
     <Box sx={{ maxWidth: 800, mt: 4 }}>
-      <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
+      <Paper
+        elevation={1}
+        sx={{ p: 4, borderRadius: 1, border: "1px solid #eee" }}
+      >
         {/* Title and Author */}
-        <Typography variant="h4" component="h2" gutterBottom color="primary">
+        <Typography variant="h4" component="h2" sx={{ fontWeight: "bold" }}>
           {blog.title}
         </Typography>
-        <Typography
-          variant="h6"
-          color="textSecondary"
-          gutterBottom
-          sx={{ mb: 2 }}
-        >
+        <Typography variant="body1" color="textSecondary" sx={{ mb: 1 }}>
           by {blog.author}
         </Typography>
 
-        <Divider sx={{ my: 2 }} />
-
         {/* URL Link */}
-        <Typography variant="body1" sx={{ mb: 2 }}>
-          Visit:{" "}
-          <Link
-            href={blog.url}
-            target="_blank"
-            rel="noreferrer"
-            underline="hover"
-          >
-            {blog.url}
-          </Link>
+        <Link
+          href={blog.url}
+          target="_blank"
+          rel="noreferrer"
+          underline="hover"
+          sx={{ display: "block", mb: 1 }}
+        >
+          {blog.url}
+        </Link>
+
+        <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+          Added by {blog.user?.name || "Unknown User"}
         </Typography>
 
-        {/* Likes Section */}
-        <Box sx={{ display: "flex", alignItems: "center", mb: 2, gap: 2 }}>
-          <Chip
-            label={`${blog.likes} likes`}
-            color="primary"
-            variant="outlined"
-            sx={{ fontSize: "1rem", p: 1 }}
-          />
+        {/* LIKES AND BUTTONS ROW */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Typography variant="body1" sx={{ fontWeight: "medium", mr: 1 }}>
+            {blog.likes} likes
+          </Typography>
+
           {currentUser && (
             <Button
-              startIcon={<ThumbUpIcon />}
-              variant="contained"
+              variant="outlined"
               size="small"
               onClick={increaseLikes}
+              sx={{ fontWeight: "bold" }}
             >
-              like
+              LIKE
+            </Button>
+          )}
+
+          {isOwner && (
+            <Button
+              variant="outlined"
+              color="error"
+              size="small"
+              onClick={() => deleteBlog(blog.id)}
+              sx={{ fontWeight: "bold" }}
+            >
+              REMOVE
             </Button>
           )}
         </Box>
-
-        <Typography variant="body2" color="text.secondary">
-          Added by <strong>{blog.user?.name || "Unknown User"}</strong>
-        </Typography>
-
-        {/* Action Buttons */}
-        {isOwner && (
-          <Box sx={{ mt: 3 }}>
-            <Button
-              startIcon={<DeleteIcon />}
-              variant="outlined"
-              color="error"
-              onClick={() => deleteBlog(blog.id)}
-            >
-              remove
-            </Button>
-          </Box>
-        )}
       </Paper>
     </Box>
   );

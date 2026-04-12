@@ -1,74 +1,65 @@
-// Import the useState hook from React to manage local component state
 import { useState } from "react";
+import { TextField, Button, Typography, Box, Paper } from "@mui/material";
 
-// Define BlogForm component that receives createBlog function as a prop
-// createBlog is a callback function that will be called when a new blog is submitted
 const BlogForm = ({ createBlog }) => {
-  // Declare state variables for each form field
-  // title state - stores the blog post title
-  const [title, setTitle] = useState("");
-  // author state - stores the blog post author name
-  const [author, setAuthor] = useState("");
-  // url state - stores the blog post URL/link
-  const [url, setUrl] = useState("");
+  const [newTitle, setNewTitle] = useState("");
+  const [newAuthor, setNewAuthor] = useState("");
+  const [newUrl, setNewUrl] = useState("");
 
-  // Handler function called when the form is submitted
-  const addBlog = (event) => {
-    // Prevent default browser form submission (which would reload the page)
+  const handleCreate = (event) => {
     event.preventDefault();
-
-    // Call the createBlog function passed from parent component
-    // Pass an object containing the current form values
     createBlog({
-      title: title, // Current title state value
-      author: author, // Current author state value
-      url: url, // Current url state value
+      title: newTitle,
+      author: newAuthor,
+      url: newUrl,
     });
-
-    // Clear all form fields after successful submission
-    setTitle(""); // Reset title input to empty
-    setAuthor(""); // Reset author input to empty
-    setUrl(""); // Reset url input to empty
+    setNewTitle("");
+    setNewAuthor("");
+    setNewUrl("");
   };
 
-  // Render the form JSX
-  return (
-    <div>
-      <h2>create new</h2>
-
-      <form onSubmit={addBlog}>
-        <div>
-          title:
-          <input
-            value={title}
-            onChange={({ target }) => setTitle(target.value)}
-            placeholder="title" // <--- Added for the test
-          />
-        </div>
-
-        <div>
-          author:
-          <input
-            value={author}
-            onChange={({ target }) => setAuthor(target.value)}
-            placeholder="author" // <--- Added for the test
-          />
-        </div>
-
-        <div>
-          url:
-          <input
-            value={url}
-            onChange={({ target }) => setUrl(target.value)}
-            placeholder="url" // <--- Added for the test
-          />
-        </div>
-
-        <button type="submit">create</button>
-      </form>
-    </div>
-  );
+  // Inside BlogForm.jsx
+return (
+  <Paper elevation={3} sx={{ p: 4, mb: 3, width: '100%' }}> {/* Changed to width: 100% */}
+    <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold' }}>
+      Create New
+    </Typography>
+    <form onSubmit={handleCreate}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}> {/* Increased gap */}
+        <TextField
+          label="Title"
+          variant="outlined"
+          value={newTitle}
+          onChange={({ target }) => setNewTitle(target.value)}
+          fullWidth
+        />
+        <TextField
+          label="Author"
+          variant="outlined"
+          value={newAuthor}
+          onChange={({ target }) => setNewAuthor(target.value)}
+          fullWidth
+        />
+        <TextField
+          label="URL"
+          variant="outlined"
+          value={newUrl}
+          onChange={({ target }) => setNewUrl(target.value)}
+          fullWidth
+        />
+        <Button 
+          type="submit" 
+          variant="contained" 
+          color="primary" 
+          size="large" // Made button bigger
+          sx={{ fontWeight: 'bold', py: 1.5 }}
+        >
+          CREATE
+        </Button>
+      </Box>
+    </form>
+  </Paper>
+)
 };
 
-// Export component so it can be imported by parent components (like App.jsx)
 export default BlogForm;

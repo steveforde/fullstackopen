@@ -1,6 +1,7 @@
 import Blog from "./Blog";
-import Togglable from "./Togglable";
 import BlogForm from "./BlogForm";
+import Togglable from "./Togglable";
+import { Box } from "@mui/material";
 
 const BlogList = ({
   blogs,
@@ -11,26 +12,25 @@ const BlogList = ({
   blogFormRef,
 }) => {
   return (
-    <div>
-      <Togglable buttonLabel="create new blog" ref={blogFormRef}>
+    <Box>
+      <Togglable buttonLabel="CREATE NEW BLOG" ref={blogFormRef}>
         <BlogForm createBlog={addBlog} />
       </Togglable>
 
-      <div style={{ marginTop: "10px" }} className="blog-list">
+      <Box sx={{ mt: 2 }}>
         {[...blogs]
-          // Force numerical sort so Sharon (8 likes) is at the top
-          .sort((a, b) => Number(b.likes) - Number(a.likes))
+          .sort((a, b) => b.likes - a.likes)
           .map((blog) => (
             <Blog
               key={blog.id}
               blog={blog}
-              updateBlog={updateBlog}
-              deleteBlog={deleteBlog}
+              handleLike={updateBlog} // Passed as handleLike
+              handleDelete={deleteBlog} // Passed as handleDelete
               currentUser={user}
             />
           ))}
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };
 
