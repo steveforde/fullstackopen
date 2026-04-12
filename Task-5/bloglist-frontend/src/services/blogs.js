@@ -77,7 +77,9 @@ const remove = async (id) => {
   return response.data
 }
 
-
-
-// Add it to the export list at the bottom
-export default { getAll, create, update, remove, setToken }
+const getUsers = async () => {
+  const response = await axios.get('/api/users')
+  return response.data
+}
+// and export it!
+export default { getAll, create, update, remove, setToken, getUsers }

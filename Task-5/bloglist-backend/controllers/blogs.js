@@ -91,6 +91,18 @@ blogsRouter.delete('/:id', async (request, response) => {
   response.status(204).end()
 })
 
+// GET a single blog by ID
+blogsRouter.get('/:id', async (request, response) => {
+  const blog = await Blog.findById(request.params.id)
+    .populate('user', { username: 1, name: 1 })
+
+  if (blog) {
+    response.json(blog)
+  } else {
+    response.status(404).end()
+  }
+})
+
 // 4.14: UPDATE (PUT) a blog's likes
 blogsRouter.put('/:id', async (request, response) => {
   // Extract the request body data

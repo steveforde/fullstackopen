@@ -1,21 +1,21 @@
 // Import the useState hook from React to manage local component state
-import { useState } from 'react'
+import { useState } from "react";
 
 // Define BlogForm component that receives createBlog function as a prop
 // createBlog is a callback function that will be called when a new blog is submitted
 const BlogForm = ({ createBlog }) => {
   // Declare state variables for each form field
   // title state - stores the blog post title
-  const [title, setTitle] = useState('')
+  const [title, setTitle] = useState("");
   // author state - stores the blog post author name
-  const [author, setAuthor] = useState('')
+  const [author, setAuthor] = useState("");
   // url state - stores the blog post URL/link
-  const [url, setUrl] = useState('')
+  const [url, setUrl] = useState("");
 
   // Handler function called when the form is submitted
   const addBlog = (event) => {
     // Prevent default browser form submission (which would reload the page)
-    event.preventDefault()
+    event.preventDefault();
 
     // Call the createBlog function passed from parent component
     // Pass an object containing the current form values
@@ -23,13 +23,13 @@ const BlogForm = ({ createBlog }) => {
       title: title, // Current title state value
       author: author, // Current author state value
       url: url, // Current url state value
-    })
+    });
 
     // Clear all form fields after successful submission
-    setTitle('') // Reset title input to empty
-    setAuthor('') // Reset author input to empty
-    setUrl('') // Reset url input to empty
-  }
+    setTitle(""); // Reset title input to empty
+    setAuthor(""); // Reset author input to empty
+    setUrl(""); // Reset url input to empty
+  };
 
   // Render the form JSX
   return (
@@ -67,7 +67,8 @@ const BlogForm = ({ createBlog }) => {
         <button type="submit">create</button>
       </form>
     </div>
-  )}
+  );
+};
 
 // Export component so it can be imported by parent components (like App.jsx)
-export default BlogForm
+export default BlogForm;
