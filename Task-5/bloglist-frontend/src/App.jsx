@@ -48,26 +48,32 @@ const App = () => {
     blogService.getUsers().then((initialUsers) => setUsers(initialUsers));
   }, []);
 
-  const handleLogin = async (event) => {
-    event.preventDefault();
-    try {
-      const user = await loginService.login({ username, password });
-      window.localStorage.setItem("loggedBlogappUser", JSON.stringify(user));
-      blogService.setToken(user.token);
-      setUser(user);
-      setUsername("");
-      setPassword("");
-      navigate("/");
-    } catch {
-      notify("wrong username or password", "error");
-    }
-  };
+const handleLogout = () => {
+  window.localStorage.removeItem("loggedBlogappUser");
+  setUser(null);
 
-  const handleLogout = () => {
-    window.localStorage.removeItem("loggedBlogappUser");
-    setUser(null);
-    navigate("/");
-  };
+  // RESET the text fields here
+  setUsername("");
+  setPassword("");
+
+  notify("Logged out successfully");
+};
+
+const handleLogin = async (event) => {
+  event.preventDefault();
+  try {
+    const user = await loginService.login({ username, password });
+    window.localStorage.setItem("loggedBlogappUser", JSON.stringify(user));
+    blogService.setToken(user.token);
+    setUser(user);
+
+    // CLEAR the fields here too
+    setUsername("");
+    setPassword("");
+  } catch (exception) {
+    notify("Wrong credentials", "error");
+  }
+};
 
   const notify = (message, type = "success") => {
     setNotification(message);
@@ -141,28 +147,35 @@ const App = () => {
       >
         <CssBaseline />
         <Container maxWidth="sm">
-          <Paper elevation={3} sx={{ p: 4, textAlign: "center" }}>
+          <Paper
+            key={user === null ? "logout" : "login"}
+            elevation={3}
+            sx={{ p: 4, textAlign: "center" }}
+          >
             <Typography component="h1" variant="h4" gutterBottom>
               Blog App
             </Typography>
             <BlogNotification message={notification} type={notificationType} />
             <form onSubmit={handleLogin}>
               <TextField
-                fullWidth
                 label="Username"
                 variant="outlined"
-                margin="normal"
-                value={username}
-                onChange={({ target }) => setUsername(target.value)}
-              />
-              <TextField
                 fullWidth
+                margin="normal"
+                value={username} // <--- ADD THIS
+                onChange={({ target }) => setUsername(target.value)}
+                autoComplete="off" // <--- ADD THIS to stop Chrome
+              />
+
+              <TextField
                 label="Password"
                 type="password"
                 variant="outlined"
+                fullWidth
                 margin="normal"
-                value={password}
+                value={password} // <--- ADD THIS
                 onChange={({ target }) => setPassword(target.value)}
+                autoComplete="new-password" // <--- ADD THIS to stop Chrome
               />
               <Button
                 fullWidth
