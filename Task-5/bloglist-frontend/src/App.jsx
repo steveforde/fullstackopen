@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Routes, Route, useMatch } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom"; // Updated imports
 
 // Service imports
 import blogService from "./services/blogs";
@@ -17,7 +17,7 @@ import BlogDetail from "./components/BlogDetail";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
-  const [users, setUsers] = useState([]); // Added for User views
+  const [users, setUsers] = useState([]);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
@@ -25,6 +25,7 @@ const App = () => {
   const [notificationType, setNotificationType] = useState("success");
 
   const blogFormRef = useRef();
+  const navigate = useNavigate(); // Hook for programmatic navigation
 
   // EFFECT: Persistent Login
   useEffect(() => {
@@ -36,7 +37,7 @@ const App = () => {
     }
   }, []);
 
-  // EFFECT: Initial Data Fetch (Blogs and Users)
+  // EFFECT: Initial Data Fetch
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
     blogService.getUsers().then((initialUsers) => setUsers(initialUsers));
@@ -53,6 +54,7 @@ const App = () => {
       setUser(user);
       setUsername("");
       setPassword("");
+      navigate("/"); // Task 5.24: Redirect to home after login
     } catch {
       notify("wrong username or password", "error");
     }
@@ -61,6 +63,7 @@ const App = () => {
   const handleLogout = () => {
     window.localStorage.removeItem("loggedBlogappUser");
     setUser(null);
+    navigate("/"); // Task 5.24: Redirect to home after logout
   };
 
   const notify = (message, type = "success") => {
@@ -85,6 +88,7 @@ const App = () => {
 
       setBlogs(blogs.concat(blogWithUser));
       notify(`a new blog ${blogObject.title} by ${blogObject.author} added`);
+      navigate("/"); // Task 5.26: Redirect to home after creation
     } catch {
       notify("error adding blog", "error");
     }
@@ -113,6 +117,7 @@ const App = () => {
         await blogService.remove(id);
         setBlogs(blogs.filter((b) => b.id !== id));
         notify(`Deleted ${blogToRemove.title}`);
+        navigate("/"); // Task 5.26: Redirect to home after delete
       } catch {
         notify("Error deleting blog - are you the owner?", "error");
       }
@@ -156,13 +161,10 @@ const App = () => {
   return (
     <div>
       <Navigation user={user} handleLogout={handleLogout} />
-
       <div style={{ padding: "0 20px" }}>
         <h2>blog app</h2>
         <BlogNotification message={notification} type={notificationType} />
-
         <Routes>
-          {/* Default Home View: The list of blogs */}
           <Route
             path="/"
             element={
@@ -176,18 +178,21 @@ const App = () => {
               />
             }
           />
-
-          {/* User Management Views */}
           <Route path="/users" element={<Users users={users} />} />
           <Route
             path="/users/:id"
             element={<UserDetail users={users} blogs={blogs} />}
           />
-
-          {/* Single Blog Detail View */}
           <Route
             path="/blogs/:id"
-            element={<BlogDetail blogs={blogs} handleLike={updateBlog} />}
+            element={
+              <BlogDetail
+                blogs={blogs}
+                handleLike={updateBlog}
+                deleteBlog={deleteBlog}
+                currentUser={user} // Pass user for permission checks (Task 5.27)
+              />
+            }
           />
         </Routes>
       </div>
