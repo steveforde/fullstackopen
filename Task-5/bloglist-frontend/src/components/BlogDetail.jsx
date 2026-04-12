@@ -1,7 +1,5 @@
 import { useParams } from "react-router-dom";
-import { Typography, Button, Paper, Link, Box, Divider } from "@mui/material";
-import ThumbUpIcon from "@mui/icons-material/ThumbUp";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { Typography, Button, Paper, Link, Box } from "@mui/material";
 
 const BlogDetail = ({ blogs, handleLike, deleteBlog, currentUser }) => {
   const { id } = useParams();
@@ -32,7 +30,6 @@ const BlogDetail = ({ blogs, handleLike, deleteBlog, currentUser }) => {
         elevation={1}
         sx={{ p: 4, borderRadius: 1, border: "1px solid #eee" }}
       >
-        {/* Title and Author */}
         <Typography variant="h4" component="h2" sx={{ fontWeight: "bold" }}>
           {blog.title}
         </Typography>
@@ -40,7 +37,6 @@ const BlogDetail = ({ blogs, handleLike, deleteBlog, currentUser }) => {
           by {blog.author}
         </Typography>
 
-        {/* URL Link */}
         <Link
           href={blog.url}
           target="_blank"
@@ -66,9 +62,12 @@ const BlogDetail = ({ blogs, handleLike, deleteBlog, currentUser }) => {
               variant="outlined"
               size="small"
               onClick={increaseLikes}
-              sx={{ fontWeight: "bold" }}
+              /* FIX: lowercase 'like' and textTransform: 'none' 
+                 so Playwright can find the button.
+              */
+              sx={{ fontWeight: "bold", textTransform: "none" }}
             >
-              LIKE
+              like
             </Button>
           )}
 
@@ -78,9 +77,11 @@ const BlogDetail = ({ blogs, handleLike, deleteBlog, currentUser }) => {
               color="error"
               size="small"
               onClick={() => deleteBlog(blog.id)}
-              sx={{ fontWeight: "bold" }}
+              /* FIX: lowercase 'remove' and textTransform: 'none'
+               */
+              sx={{ fontWeight: "bold", textTransform: "none" }}
             >
-              REMOVE
+              remove
             </Button>
           )}
         </Box>

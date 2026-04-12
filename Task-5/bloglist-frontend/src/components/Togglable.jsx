@@ -1,6 +1,6 @@
 import { useState, useImperativeHandle, forwardRef } from "react";
 import { Button, Box } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add"; // Optional: adds a nice plus icon
+import AddIcon from "@mui/icons-material/Add";
 import CancelIcon from "@mui/icons-material/Cancel";
 
 const Togglable = forwardRef((props, ref) => {
@@ -28,7 +28,8 @@ const Togglable = forwardRef((props, ref) => {
           color="primary"
           onClick={toggleVisibility}
           startIcon={<AddIcon />}
-          sx={{ fontWeight: "bold" }}
+          /* FIX: textTransform: "none" ensures "create new blog" stays lowercase */
+          sx={{ fontWeight: "bold", textTransform: "none" }}
         >
           {props.buttonLabel}
         </Button>
@@ -43,9 +44,10 @@ const Togglable = forwardRef((props, ref) => {
           color="error"
           onClick={toggleVisibility}
           startIcon={<CancelIcon />}
-          sx={{ mt: 1, fontWeight: "bold" }}
+          /* FIX: textTransform: "none" and lowercase "cancel" */
+          sx={{ mt: 1, fontWeight: "bold", textTransform: "none" }}
         >
-          CANCEL
+          cancel
         </Button>
       </Box>
     </Box>

@@ -1,65 +1,73 @@
 import { useState } from "react";
-import { TextField, Button, Typography, Box, Paper } from "@mui/material";
+import { TextField, Button, Box, Typography } from "@mui/material";
 
 const BlogForm = ({ createBlog }) => {
   const [newTitle, setNewTitle] = useState("");
   const [newAuthor, setNewAuthor] = useState("");
   const [newUrl, setNewUrl] = useState("");
 
-  const handleCreate = (event) => {
+  const addBlog = (event) => {
     event.preventDefault();
     createBlog({
       title: newTitle,
       author: newAuthor,
       url: newUrl,
     });
+
     setNewTitle("");
     setNewAuthor("");
     setNewUrl("");
   };
 
-  // Inside BlogForm.jsx
-return (
-  <Paper elevation={3} sx={{ p: 4, mb: 3, width: '100%' }}> {/* Changed to width: 100% */}
-    <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold' }}>
-      Create New
-    </Typography>
-    <form onSubmit={handleCreate}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}> {/* Increased gap */}
+  return (
+    <Box sx={{ mb: 2, p: 2, border: "1px solid #ccc", borderRadius: 2 }}>
+      <Typography variant="h5" gutterBottom>
+        create new
+      </Typography>
+      <form onSubmit={addBlog}>
         <TextField
           label="Title"
-          variant="outlined"
+          id="title"
+          /* CRITICAL: Playwright looks for this exact placeholder */
+          placeholder="title"
           value={newTitle}
           onChange={({ target }) => setNewTitle(target.value)}
           fullWidth
+          margin="dense"
         />
         <TextField
           label="Author"
-          variant="outlined"
+          id="author"
+          /* CRITICAL: Playwright looks for this exact placeholder */
+          placeholder="author"
           value={newAuthor}
           onChange={({ target }) => setNewAuthor(target.value)}
           fullWidth
+          margin="dense"
         />
         <TextField
           label="URL"
-          variant="outlined"
+          id="url"
+          /* CRITICAL: Playwright looks for this exact placeholder */
+          placeholder="url"
           value={newUrl}
           onChange={({ target }) => setNewUrl(target.value)}
           fullWidth
+          margin="dense"
         />
-        <Button 
-          type="submit" 
-          variant="contained" 
-          color="primary" 
-          size="large" // Made button bigger
-          sx={{ fontWeight: 'bold', py: 1.5 }}
+        <Button
+          id="create-button"
+          variant="contained"
+          color="primary"
+          type="submit"
+          /* CRITICAL: Must be lowercase and no-transform for the test */
+          sx={{ mt: 1, textTransform: "none" }}
         >
-          CREATE
+          create
         </Button>
-      </Box>
-    </form>
-  </Paper>
-)
+      </form>
+    </Box>
+  );
 };
 
 export default BlogForm;

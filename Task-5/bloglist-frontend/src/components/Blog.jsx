@@ -5,7 +5,6 @@ import { Link } from "react-router-dom";
 const Blog = ({ blog, handleLike, handleDelete, currentUser }) => {
   const [visible, setVisible] = useState(false);
 
-  // Checks ownership by comparing username or ID string
   const isOwner =
     currentUser &&
     blog.user &&
@@ -22,14 +21,20 @@ const Blog = ({ blog, handleLike, handleDelete, currentUser }) => {
     const updatedBlog = {
       ...blog,
       likes: (blog.likes || 0) + 1,
-      // CRITICAL: Send only the ID string to the backend, not the whole object
       user: blog.user.id || blog.user,
     };
     handleLike(blog.id, updatedBlog);
   };
 
   return (
-    <Paper sx={{ mb: 1, p: 2, border: "1px solid #ddd" }} className="blog">
+    <Paper
+      sx={{ mb: 1, p: 2, border: "1px solid #ddd" }}
+      className="blog"
+      data-testid="blog-item"
+    >
+      {/* This Box contains the text the test uses to find the container. 
+        Keep title and author together here. 
+      */}
       <Box
         sx={{
           display: "flex",
@@ -40,21 +45,19 @@ const Blog = ({ blog, handleLike, handleDelete, currentUser }) => {
         <Typography variant="body1">
           <Link
             to={`/blogs/${blog.id}`}
-            style={{
-              textDecoration: "none",
-              color: "#1976d2",
-              fontWeight: "bold",
-            }}
+            style={{ fontWeight: "bold", textDecoration: "none" }}
           >
             {blog.title}
           </Link>{" "}
-          by {blog.author}
+          {blog.author}
         </Typography>
+
         <Button
           variant="outlined"
           size="small"
           onClick={toggleVisibility}
           className="viewButton"
+          sx={{ textTransform: "none" }}
         >
           {visible ? "hide" : "view"}
         </Button>
@@ -71,19 +74,19 @@ const Blog = ({ blog, handleLike, handleDelete, currentUser }) => {
             </a>
           </Typography>
 
-          {/* LIKES ROW - Matches Michael Chan style */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-            <Typography variant="body2" className="likesCount">
-              {blog.likes} likes
-            </Typography>
+            {/* CRITICAL: The test checks for the text 'likes' and the number.
+               Keep them in one Typography element.
+            */}
+            <Typography variant="body2">likes {blog.likes}</Typography>
             <Button
               variant="outlined"
               size="small"
               onClick={increaseLikes}
               className="likeButton"
-              sx={{ fontWeight: "bold" }}
+              sx={{ fontWeight: "bold", textTransform: "none" }}
             >
-              LIKE
+              like
             </Button>
           </Box>
 
@@ -97,10 +100,10 @@ const Blog = ({ blog, handleLike, handleDelete, currentUser }) => {
               color="error"
               size="small"
               onClick={() => handleDelete(blog.id)}
-              sx={{ mt: 1, fontWeight: "bold" }}
               className="removeButton"
+              sx={{ mt: 1, fontWeight: "bold", textTransform: "none" }}
             >
-              REMOVE
+              remove
             </Button>
           )}
         </Box>

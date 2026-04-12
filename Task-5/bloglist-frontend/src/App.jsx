@@ -48,32 +48,32 @@ const App = () => {
     blogService.getUsers().then((initialUsers) => setUsers(initialUsers));
   }, []);
 
-const handleLogout = () => {
-  window.localStorage.removeItem("loggedBlogappUser");
-  setUser(null);
+  const handleLogout = () => {
+    window.localStorage.removeItem("loggedBlogappUser");
+    setUser(null);
 
-  // RESET the text fields here
-  setUsername("");
-  setPassword("");
-
-  notify("Logged out successfully");
-};
-
-const handleLogin = async (event) => {
-  event.preventDefault();
-  try {
-    const user = await loginService.login({ username, password });
-    window.localStorage.setItem("loggedBlogappUser", JSON.stringify(user));
-    blogService.setToken(user.token);
-    setUser(user);
-
-    // CLEAR the fields here too
+    // RESET the text fields here
     setUsername("");
     setPassword("");
-  } catch (exception) {
-    notify("Wrong credentials", "error");
-  }
-};
+
+    notify("Logged out successfully");
+  };
+
+  const handleLogin = async (event) => {
+    event.preventDefault();
+    try {
+      const user = await loginService.login({ username, password });
+      window.localStorage.setItem("loggedBlogappUser", JSON.stringify(user));
+      blogService.setToken(user.token);
+      setUser(user);
+
+      // CLEAR the fields here too
+      setUsername("");
+      setPassword("");
+    } catch (exception) {
+      notify("Wrong credentials", "error");
+    }
+  };
 
   const notify = (message, type = "success") => {
     setNotification(message);
@@ -159,23 +159,25 @@ const handleLogin = async (event) => {
             <form onSubmit={handleLogin}>
               <TextField
                 label="Username"
+                placeholder="username"
                 variant="outlined"
                 fullWidth
                 margin="normal"
-                value={username} // <--- ADD THIS
+                value={username}
                 onChange={({ target }) => setUsername(target.value)}
-                autoComplete="off" // <--- ADD THIS to stop Chrome
+                autoComplete="off"
               />
 
               <TextField
                 label="Password"
                 type="password"
+                placeholder="password"
                 variant="outlined"
                 fullWidth
                 margin="normal"
-                value={password} // <--- ADD THIS
+                value={password}
                 onChange={({ target }) => setPassword(target.value)}
-                autoComplete="new-password" // <--- ADD THIS to stop Chrome
+                autoComplete="new-password"
               />
               <Button
                 fullWidth
@@ -235,6 +237,6 @@ const handleLogin = async (event) => {
       </Container>
     </Box>
   );
-};;
+};
 
 export default App;

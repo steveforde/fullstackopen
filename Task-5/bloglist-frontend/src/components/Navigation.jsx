@@ -8,7 +8,6 @@ const Navigation = ({ user, handleLogout }) => {
       sx={{ backgroundColor: "#1976d2", marginBottom: "30px" }}
     >
       <Toolbar>
-        {/* Brand Title */}
         <Typography
           variant="h5"
           component="div"
@@ -17,45 +16,27 @@ const Navigation = ({ user, handleLogout }) => {
           Blog App
         </Typography>
 
-        {/* Navigation Links */}
         <Box sx={{ flexGrow: 1, display: "flex", gap: 1 }}>
           <Button
             color="inherit"
             component={Link}
             to="/"
-            sx={{ fontWeight: "bold" }}
+            sx={{ fontWeight: "bold", textTransform: "none" }}
           >
-            BLOGS
+            blogs
           </Button>
-
-          {/* NEW BLOG link added here to match the screenshot */}
-          <Button
-            color="inherit"
-            component={Link}
-            to="/" // Usually points to the home where the Togglable form is, or a /create route
-            sx={{ fontWeight: "bold" }}
-          >
-            NEW BLOG
-          </Button>
-
           <Button
             color="inherit"
             component={Link}
             to="/users"
-            sx={{ fontWeight: "bold" }}
+            sx={{ fontWeight: "bold", textTransform: "none" }}
           >
-            USERS
+            users
           </Button>
         </Box>
 
-        {/* User Info & Logout */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <Typography
-            variant="body1"
-            sx={{ display: { xs: "none", md: "block" } }}
-          >
-            {user.name} logged in
-          </Typography>
+          <Typography variant="body1">{user.name} logged in</Typography>
           <Button
             onClick={handleLogout}
             variant="outlined"
@@ -64,9 +45,10 @@ const Navigation = ({ user, handleLogout }) => {
             sx={{
               fontWeight: "bold",
               border: "1px solid rgba(255,255,255,0.5)",
+              textTransform: "none",
             }}
           >
-            LOGOUT
+            logout
           </Button>
         </Box>
       </Toolbar>

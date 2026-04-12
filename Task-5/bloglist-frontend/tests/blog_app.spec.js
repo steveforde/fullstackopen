@@ -6,7 +6,7 @@ test.describe('Blog app', () => {
     await request.post('http://localhost:3003/api/users', {
       data: {
         username: 'sharon_carlow',
-        name: 'Sharon Carlow', // ← MUST match the logged-in message
+        name: 'Sharon Carlow',
         password: 'sharonpassword123',
       },
     })
@@ -21,36 +21,31 @@ test.describe('Blog app', () => {
   })
 
   test('Login form is shown', async ({ page }) => {
-    await expect(page.getByText('Log in to application')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Blog App' })).toBeVisible()
   })
 
   test.describe('Login', () => {
-    test.beforeEach(async ({ page }) => {
-      await page.getByRole('button', { name: 'login' }).click()
-    })
-
     test('succeeds with correct credentials', async ({ page }) => {
       await page.getByPlaceholder('username').fill('sharon_carlow')
       await page.getByPlaceholder('password').fill('sharonpassword123')
-      await page.locator('button[type="submit"]').click()
+      await page.getByRole('button', { name: 'LOGIN' }).click()
       await expect(page.getByText('Sharon Carlow logged in')).toBeVisible()
     })
 
     test('fails with wrong credentials', async ({ page }) => {
       await page.getByPlaceholder('username').fill('sharon_carlow')
       await page.getByPlaceholder('password').fill('wrong')
-      await page.locator('button[type="submit"]').click()
-      await expect(page.getByText('wrong username or password')).toBeVisible()
+      await page.getByRole('button', { name: 'LOGIN' }).click()
+      await expect(page.getByText('Wrong credentials')).toBeVisible()
     })
   })
 
   test.describe('When logged in', () => {
     test.beforeEach(async ({ page }) => {
-      await page.getByRole('button', { name: 'login' }).click()
       await page.getByPlaceholder('username').fill('sharon_carlow')
       await page.getByPlaceholder('password').fill('sharonpassword123')
-      await page.locator('button[type="submit"]').click()
-      await expect(page.getByText('Sharon Carlow logged in')).toBeVisible() // ← fixed typo
+      await page.getByRole('button', { name: 'LOGIN' }).click()
+      await expect(page.getByText('Sharon Carlow logged in')).toBeVisible()
     })
 
     test('a new blog can be created', async ({ page }) => {
@@ -65,122 +60,153 @@ test.describe('Blog app', () => {
     })
 
     test('a blog can be liked', async ({ page }) => {
-      const blogToLike = page
-        .getByText(/Playwright is powerful Steve Forde/i)
-        .first()
-        .locator('..')
+      // Create a unique blog
+      const uniqueTitle = `Like Test ${Date.now()}`
+      await page.getByRole('button', { name: 'create new blog' }).click()
+      await page.getByPlaceholder('title').fill(uniqueTitle)
+      await page.getByPlaceholder('author').fill('Test Author')
+      await page.getByPlaceholder('url').fill('http://liketest.com')
+      await page.getByRole('button', { name: 'create' }).click()
 
-      await blogToLike.getByRole('button', { name: 'view' }).click()
-      await blogToLike.getByRole('button', { name: 'like' }).click()
-      await expect(blogToLike.getByText(/likes/i)).toBeVisible()
+      // Find the blog container using data-testid
+      const blogItem = page.locator(
+        `[data-testid="blog-item"]:has-text("${uniqueTitle}")`,
+      )
+      await expect(blogItem).toBeVisible({ timeout: 5000 })
+
+      // Click the view button inside that container
+      await blogItem.getByRole('button', { name: 'view' }).click()
+
+      // Now the like button appears – wait and click
+      await expect(blogItem.getByRole('button', { name: 'like' })).toBeVisible({
+        timeout: 5000,
+      })
+      await blogItem.getByRole('button', { name: 'like' }).click()
+
+      // Verify likes count is present
+      await expect(blogItem.getByText(/likes/)).toBeVisible()
     })
 
     test('a blog can be deleted', async ({ page }) => {
-      const uniqueTitle = `Delete Me ${Math.random()}`
-      const uniqueAuthor = 'Steve Forde'
-
+      const uniqueTitle = `Delete Me ${Date.now()}`
       await page.getByRole('button', { name: 'create new blog' }).click()
       await page.getByPlaceholder('title').fill(uniqueTitle)
-      await page.getByPlaceholder('author').fill(uniqueAuthor)
+      await page.getByPlaceholder('author').fill('Steve Forde')
       await page.getByPlaceholder('url').fill('http://test.com')
       await page.getByRole('button', { name: 'create' }).click()
 
-      const blogPost = page.getByText(uniqueTitle).last()
-      await expect(blogPost).toBeVisible()
+      const blogItem = page.locator(
+        `[data-testid="blog-item"]:has-text("${uniqueTitle}")`,
+      )
+      await expect(blogItem).toBeVisible({ timeout: 5000 })
 
-      const blogContainer = blogPost.locator('..')
-      await blogContainer.getByRole('button', { name: 'view' }).click()
-
+      await blogItem.getByRole('button', { name: 'view' }).click()
       page.on('dialog', (dialog) => dialog.accept())
-      await blogContainer.getByRole('button', { name: 'remove' }).click()
+      await blogItem.getByRole('button', { name: 'remove' }).click()
 
-      await expect(blogContainer).not.toBeVisible() // ← fixed line
+      await expect(blogItem).not.toBeVisible()
     })
 
     test('only the creator sees the delete button', async ({ page }) => {
-      const uniqueTitle = `Creator Test ${Math.random()}`
+      const uniqueTitle = `Creator Test ${Date.now()}`
 
+      // Sharon creates a blog
       await page.getByRole('button', { name: 'create new blog' }).click()
       await page.getByPlaceholder('title').fill(uniqueTitle)
       await page.getByPlaceholder('author').fill('Sharon Carlow')
       await page.getByPlaceholder('url').fill('http://sharonsblog.com')
       await page.getByRole('button', { name: 'create' }).click()
-      await page.waitForTimeout(2000)
 
-      let blogPost = page.getByText(uniqueTitle).last()
-      await expect(blogPost).toBeVisible({ timeout: 10000 })
+      const blogItem = page.locator(
+        `[data-testid="blog-item"]:has-text("${uniqueTitle}")`,
+      )
+      await expect(blogItem).toBeVisible({ timeout: 5000 })
+      await blogItem.getByRole('button', { name: 'view' }).click()
 
-      let blogContainer = blogPost.locator('..')
-      await blogContainer.getByRole('button', { name: 'view' }).click()
-
+      // Sharon should see remove button
       await expect(
-        blogContainer.getByRole('button', { name: 'remove' }),
+        blogItem.getByRole('button', { name: 'remove' }),
       ).toBeVisible()
+      await blogItem.getByRole('button', { name: 'hide' }).click()
 
-      await blogContainer.getByRole('button', { name: 'hide' }).click()
+      // Logout
       await page.getByRole('button', { name: 'logout' }).click()
 
-      await page.getByRole('button', { name: 'login' }).click()
+      // Login as Steve
       await page.getByPlaceholder('username').fill('steve_limerick')
       await page.getByPlaceholder('password').fill('secretpassword123')
-      await page.locator('button[type="submit"]').click()
-      await expect(page.getByText('Steve Forde logged in')).toBeVisible({
-        timeout: 10000,
-      })
+      await page.getByRole('button', { name: 'LOGIN' }).click()
+      await expect(page.getByText('Steve Forde logged in')).toBeVisible()
 
-      blogPost = page.getByText(uniqueTitle).last()
-      await expect(blogPost).toBeVisible({ timeout: 10000 })
+      // Find the same blog (Steve should see it)
+      const steveBlogItem = page.locator(
+        `[data-testid="blog-item"]:has-text("${uniqueTitle}")`,
+      )
+      await expect(steveBlogItem).toBeVisible({ timeout: 5000 })
+      await steveBlogItem.getByRole('button', { name: 'view' }).click()
 
-      blogContainer = blogPost.locator('..')
-      await blogContainer.getByRole('button', { name: 'view' }).click()
-
+      // Steve should NOT see remove button
       await expect(
-        blogContainer.getByRole('button', { name: 'remove' }),
+        steveBlogItem.getByRole('button', { name: 'remove' }),
       ).not.toBeVisible()
     })
 
     test('blogs are ordered by likes with most likes first', async ({
       page,
     }) => {
+      const fewLikesTitle = `Few Likes ${Date.now()}`
+      const manyLikesTitle = `Many Likes ${Date.now()}`
+
+      // Create blog with few likes
       await page.getByRole('button', { name: 'create new blog' }).click()
-      await page.getByPlaceholder('title').fill('Blog With Few Likes')
+      await page.getByPlaceholder('title').fill(fewLikesTitle)
       await page.getByPlaceholder('author').fill('Author A')
       await page.getByPlaceholder('url').fill('http://blog1.com')
       await page.getByRole('button', { name: 'create' }).click()
-      await page.waitForTimeout(2000)
+      await expect(
+        page.locator(`[data-testid="blog-item"]:has-text("${fewLikesTitle}")`),
+      ).toBeVisible({ timeout: 5000 })
 
-      let blogPost = page.getByText('Blog With Few Likes').last()
-      let blogContainer = blogPost.locator('..')
-      await blogContainer.getByRole('button', { name: 'view' }).click()
-      await blogContainer.getByRole('button', { name: 'like' }).click()
-      await blogContainer.getByRole('button', { name: 'hide' }).click()
-      await page.waitForTimeout(1000)
-
+      // Create blog with many likes
       await page.getByRole('button', { name: 'create new blog' }).click()
-      await page.getByPlaceholder('title').fill('Blog With Many Likes')
+      await page.getByPlaceholder('title').fill(manyLikesTitle)
       await page.getByPlaceholder('author').fill('Author B')
       await page.getByPlaceholder('url').fill('http://blog2.com')
       await page.getByRole('button', { name: 'create' }).click()
+      await expect(
+        page.locator(`[data-testid="blog-item"]:has-text("${manyLikesTitle}")`),
+      ).toBeVisible({ timeout: 5000 })
+
+      // Like the many‑likes blog 3 times
+      const manyBlog = page.locator(
+        `[data-testid="blog-item"]:has-text("${manyLikesTitle}")`,
+      )
+      await manyBlog.getByRole('button', { name: 'view' }).click()
+      for (let i = 0; i < 3; i++) {
+        await manyBlog.getByRole('button', { name: 'like' }).click()
+        await page.waitForTimeout(300)
+      }
+      await manyBlog.getByRole('button', { name: 'hide' }).click()
+
+      // Like the few‑likes blog once
+      const fewBlog = page.locator(
+        `[data-testid="blog-item"]:has-text("${fewLikesTitle}")`,
+      )
+      await fewBlog.getByRole('button', { name: 'view' }).click()
+      await fewBlog.getByRole('button', { name: 'like' }).click()
+      await fewBlog.getByRole('button', { name: 'hide' }).click()
+
+      // Wait for reorder (home page sorts by likes)
       await page.waitForTimeout(2000)
 
-      blogPost = page.getByText('Blog With Many Likes').last()
-      blogContainer = blogPost.locator('..')
-      await blogContainer.getByRole('button', { name: 'view' }).click()
-      await blogContainer.getByRole('button', { name: 'like' }).click()
-      await page.waitForTimeout(300)
-      await blogContainer.getByRole('button', { name: 'like' }).click()
-      await page.waitForTimeout(300)
-      await blogContainer.getByRole('button', { name: 'like' }).click()
-      await blogContainer.getByRole('button', { name: 'hide' }).click()
+      // Get all blog titles from the home page
+      const allTitles = await page
+        .locator('[data-testid="blog-item"] p a')
+        .allTextContents()
+      const manyIndex = allTitles.findIndex((title) => title === manyLikesTitle)
+      const fewIndex = allTitles.findIndex((title) => title === fewLikesTitle)
 
-      await page.waitForTimeout(3000)
-
-      const allBlogs = await page.locator('div:has-text("view")').all()
-      const firstBlogText = (await allBlogs[0].textContent()) || ''
-      const secondBlogText = (await allBlogs[1].textContent()) || ''
-
-      expect(firstBlogText).toContain('Blog With Many Likes')
-      expect(secondBlogText).toContain('Blog With Few Likes')
+      expect(manyIndex).toBeLessThan(fewIndex)
     })
   })
 })

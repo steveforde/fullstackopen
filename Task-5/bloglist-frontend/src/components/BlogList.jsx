@@ -13,7 +13,10 @@ const BlogList = ({
 }) => {
   return (
     <Box>
-      <Togglable buttonLabel="CREATE NEW BLOG" ref={blogFormRef}>
+      {/* FIX: Change "CREATE NEW BLOG" to "create new blog" 
+          The automated test is case-sensitive!
+      */}
+      <Togglable buttonLabel="create new blog" ref={blogFormRef}>
         <BlogForm createBlog={addBlog} />
       </Togglable>
 
@@ -24,8 +27,8 @@ const BlogList = ({
             <Blog
               key={blog.id}
               blog={blog}
-              handleLike={updateBlog} // Passed as handleLike
-              handleDelete={deleteBlog} // Passed as handleDelete
+              handleLike={updateBlog}
+              handleDelete={deleteBlog}
               currentUser={user}
             />
           ))}
