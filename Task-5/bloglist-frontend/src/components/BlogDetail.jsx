@@ -1,18 +1,24 @@
 import { useParams } from "react-router-dom";
+import {
+  Typography,
+  Button,
+  Paper,
+  Link,
+  Box,
+  Divider,
+  Chip,
+} from "@mui/material";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const BlogDetail = ({ blogs, handleLike, deleteBlog, currentUser }) => {
   const { id } = useParams();
-
-  // Find the blog from the props passed from App.jsx
   const blog = blogs.find((b) => b.id === id);
 
-  // 1. Safety check: If blogs haven't loaded yet or ID is wrong, don't crash
   if (!blog) {
-    return <p>Loading blog details...</p>;
+    return <Typography sx={{ p: 2 }}>Loading blog details...</Typography>;
   }
 
-  // 2. Permission Check: Is the logged-in user the creator of this blog? (Task 5.27)
-  // We check both object-style user and ID-style user to be safe
   const isOwner =
     currentUser &&
     blog.user &&
@@ -23,65 +29,81 @@ const BlogDetail = ({ blogs, handleLike, deleteBlog, currentUser }) => {
     const updatedBlog = {
       ...blog,
       likes: (blog.likes || 0) + 1,
+      user: blog.user.id || blog.user, // Maintain user reference consistency
     };
     handleLike(blog.id, updatedBlog);
   };
 
-  const removeBlog = () => {
-    deleteBlog(blog.id);
-  };
-
   return (
-    <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
-      <h2>
-        {blog.title} by {blog.author}
-      </h2>
-
-      <div style={{ marginBottom: "10px" }}>
-        <a href={blog.url} target="_blank" rel="noreferrer">
-          {blog.url}
-        </a>
-      </div>
-
-      <div
-        style={{
-          background: "#f9f9f9",
-          padding: "10px",
-          borderRadius: "5px",
-          marginBottom: "10px",
-        }}
-      >
-        <span>{blog.likes} likes</span>
-        {/* Task 5.25: Only logged-in users can like */}
-        {currentUser && (
-          <button onClick={increaseLikes} style={{ marginLeft: "10px" }}>
-            like
-          </button>
-        )}
-      </div>
-
-      <p style={{ color: "#666" }}>
-        added by <strong>{blog.user?.name || "Unknown User"}</strong>
-      </p>
-
-      {/* Task 5.27: The blog's creator is also shown the delete button */}
-      {isOwner && (
-        <button
-          onClick={removeBlog}
-          style={{
-            marginTop: "10px",
-            backgroundColor: "#ff4d4d",
-            color: "white",
-            border: "none",
-            padding: "5px 10px",
-            borderRadius: "3px",
-            cursor: "pointer",
-          }}
+    <Box sx={{ maxWidth: 800, mt: 4 }}>
+      <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
+        {/* Title and Author */}
+        <Typography variant="h4" component="h2" gutterBottom color="primary">
+          {blog.title}
+        </Typography>
+        <Typography
+          variant="h6"
+          color="textSecondary"
+          gutterBottom
+          sx={{ mb: 2 }}
         >
-          remove
-        </button>
-      )}
-    </div>
+          by {blog.author}
+        </Typography>
+
+        <Divider sx={{ my: 2 }} />
+
+        {/* URL Link */}
+        <Typography variant="body1" sx={{ mb: 2 }}>
+          Visit:{" "}
+          <Link
+            href={blog.url}
+            target="_blank"
+            rel="noreferrer"
+            underline="hover"
+          >
+            {blog.url}
+          </Link>
+        </Typography>
+
+        {/* Likes Section */}
+        <Box sx={{ display: "flex", alignItems: "center", mb: 2, gap: 2 }}>
+          <Chip
+            label={`${blog.likes} likes`}
+            color="primary"
+            variant="outlined"
+            sx={{ fontSize: "1rem", p: 1 }}
+          />
+          {currentUser && (
+            <Button
+              startIcon={<ThumbUpIcon />}
+              variant="contained"
+              size="small"
+              onClick={increaseLikes}
+            >
+              like
+            </Button>
+          )}
+        </Box>
+
+        <Typography variant="body2" color="text.secondary">
+          Added by <strong>{blog.user?.name || "Unknown User"}</strong>
+        </Typography>
+
+        {/* Action Buttons */}
+        {isOwner && (
+          <Box sx={{ mt: 3 }}>
+            <Button
+              startIcon={<DeleteIcon />}
+              variant="outlined"
+              color="error"
+              onClick={() => deleteBlog(blog.id)}
+            >
+              remove
+            </Button>
+          </Box>
+        )}
+      </Paper>
+    </Box>
   );
 };
 

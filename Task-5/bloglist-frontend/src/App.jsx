@@ -1,5 +1,14 @@
 import { useState, useEffect, useRef } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom"; // Updated imports
+import { Routes, Route, useNavigate } from "react-router-dom";
+import {
+  Container,
+  Typography,
+  Box,
+  TextField,
+  Button,
+  Paper,
+  CssBaseline,
+} from "@mui/material";
 
 // Service imports
 import blogService from "./services/blogs";
@@ -7,8 +16,6 @@ import loginService from "./services/login";
 
 // Component imports
 import BlogNotification from "./components/BlogNotification";
-import Togglable from "./components/Togglable";
-import BlogForm from "./components/BlogForm";
 import Navigation from "./components/Navigation";
 import Users from "./components/Users";
 import UserDetail from "./components/UserDetail";
@@ -25,9 +32,8 @@ const App = () => {
   const [notificationType, setNotificationType] = useState("success");
 
   const blogFormRef = useRef();
-  const navigate = useNavigate(); // Hook for programmatic navigation
+  const navigate = useNavigate();
 
-  // EFFECT: Persistent Login
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem("loggedBlogappUser");
     if (loggedUserJSON) {
@@ -37,13 +43,10 @@ const App = () => {
     }
   }, []);
 
-  // EFFECT: Initial Data Fetch
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
     blogService.getUsers().then((initialUsers) => setUsers(initialUsers));
   }, []);
-
-  // ========== HANDLERS ==========
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -54,7 +57,7 @@ const App = () => {
       setUser(user);
       setUsername("");
       setPassword("");
-      navigate("/"); // Task 5.24: Redirect to home after login
+      navigate("/");
     } catch {
       notify("wrong username or password", "error");
     }
@@ -63,7 +66,7 @@ const App = () => {
   const handleLogout = () => {
     window.localStorage.removeItem("loggedBlogappUser");
     setUser(null);
-    navigate("/"); // Task 5.24: Redirect to home after logout
+    navigate("/");
   };
 
   const notify = (message, type = "success") => {
@@ -76,7 +79,6 @@ const App = () => {
     try {
       const returnedBlog = await blogService.create(blogObject);
       blogFormRef.current.toggleVisibility();
-
       const blogWithUser = {
         ...returnedBlog,
         user: {
@@ -85,10 +87,9 @@ const App = () => {
           id: user.id || returnedBlog.user,
         },
       };
-
       setBlogs(blogs.concat(blogWithUser));
       notify(`a new blog ${blogObject.title} by ${blogObject.author} added`);
-      navigate("/"); // Task 5.26: Redirect to home after creation
+      navigate("/");
     } catch {
       notify("error adding blog", "error");
     }
@@ -99,7 +100,6 @@ const App = () => {
       const returnedBlog = await blogService.update(id, blogObject);
       const blogToUpdate = blogs.find((b) => b.id === id);
       const updatedBlogWithUser = { ...returnedBlog, user: blogToUpdate.user };
-
       setBlogs(blogs.map((b) => (b.id !== id ? b : updatedBlogWithUser)));
     } catch {
       notify("Error updating likes", "error");
@@ -117,53 +117,73 @@ const App = () => {
         await blogService.remove(id);
         setBlogs(blogs.filter((b) => b.id !== id));
         notify(`Deleted ${blogToRemove.title}`);
-        navigate("/"); // Task 5.26: Redirect to home after delete
+        navigate("/");
       } catch {
         notify("Error deleting blog - are you the owner?", "error");
       }
     }
   };
 
-  // ========== RENDERING ==========
-
+  // Rendering for unauthenticated users
   if (user === null) {
     return (
-      <div style={{ padding: "20px" }}>
-        <h2>Log in to application</h2>
-        <BlogNotification message={notification} type={notificationType} />
-        <Togglable buttonLabel="login">
-          <form onSubmit={handleLogin}>
-            <div>
-              username{" "}
-              <input
-                type="text"
+      <Box
+        sx={{
+          backgroundColor: "#f5f5f5",
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
+        <CssBaseline />
+        <Container maxWidth="sm">
+          <Paper elevation={3} sx={{ p: 4, textAlign: "center" }}>
+            <Typography component="h1" variant="h4" gutterBottom>
+              Blog App
+            </Typography>
+            <BlogNotification message={notification} type={notificationType} />
+            <form onSubmit={handleLogin}>
+              <TextField
+                fullWidth
+                label="Username"
+                variant="outlined"
+                margin="normal"
                 value={username}
                 onChange={({ target }) => setUsername(target.value)}
-                placeholder="username"
               />
-            </div>
-            <div>
-              password{" "}
-              <input
+              <TextField
+                fullWidth
+                label="Password"
                 type="password"
+                variant="outlined"
+                margin="normal"
                 value={password}
                 onChange={({ target }) => setPassword(target.value)}
-                placeholder="password"
               />
-            </div>
-            <button type="submit">login</button>
-          </form>
-        </Togglable>
-      </div>
+              <Button
+                fullWidth
+                variant="contained"
+                color="primary"
+                type="submit"
+                sx={{ mt: 2, fontWeight: "bold" }}
+              >
+                LOGIN
+              </Button>
+            </form>
+          </Paper>
+        </Container>
+      </Box>
     );
   }
 
+  // Main App Rendering (Authenticated)
   return (
-    <div>
+    <Box sx={{ backgroundColor: "#f5f5f5", minHeight: "100vh" }}>
+      <CssBaseline />
       <Navigation user={user} handleLogout={handleLogout} />
-      <div style={{ padding: "0 20px" }}>
-        <h2>blog app</h2>
+      <Container maxWidth="lg" sx={{ pt: 2, pb: 4 }}>
         <BlogNotification message={notification} type={notificationType} />
+
         <Routes>
           <Route
             path="/"
@@ -190,13 +210,13 @@ const App = () => {
                 blogs={blogs}
                 handleLike={updateBlog}
                 deleteBlog={deleteBlog}
-                currentUser={user} // Pass user for permission checks (Task 5.27)
+                currentUser={user}
               />
             }
           />
         </Routes>
-      </div>
-    </div>
+      </Container>
+    </Box>
   );
 };
 
