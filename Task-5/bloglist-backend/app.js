@@ -39,15 +39,16 @@ app.use('/api/blogs', middleware.userExtractor, blogsRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/login', loginRouter)
 
+if (process.env.NODE_ENV === 'test') {
+  const testingRouter = require('./controllers/testing')
+  app.use('/api/testing', testingRouter)
+}
+
 // 5. Error Handling (The Safety Net)
 // These only run if the request didn't match a route or if something crashed
 app.use(middleware.unknownEndpoint) // Handles 404 - Page not found
 app.use(middleware.errorHandler) // Handles database errors or bad data
 
-if (process.env.NODE_ENV === 'test') {
-  const testingRouter = require('./controllers/testing')
-  app.use('/api/testing', testingRouter)
-}
 
 // 6. Export the app so 'index.js' can start it
 module.exports = app
