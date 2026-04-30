@@ -111,7 +111,6 @@ const App = () => {
   /**
    * Creates a new blog and adds it to the state.
    * Called from BlogForm component.
-   * @param {object} blogObject - Contains title, author, url
    */
   const addBlog = async (blogObject) => {
     try {
