@@ -1,0 +1,25 @@
+{
+  "anecdotes": [
+    {
+      "content": "If it hurts, do it more often",
+      "id": "1",
+      "votes": 4
+    },
+    {
+      "content": "Limerick is the best place for WFH",
+      "votes": 1,
+      "id": "eaD4G1u-6E8"
+    },
+    {
+      "content": "Galway is the best place for WFH",
+      "votes": 0,
+      "id": "CM5uFLQQKrA"
+    },
+    {
+      "content": "Dublin is the best place for WFH",
+      "votes": 0,
+      "id": "GQRZfgErhTw"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
