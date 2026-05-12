@@ -7,18 +7,33 @@
     },
     {
       "content": "Limerick is the best place for WFH",
-      "votes": 1,
+      "votes": 3,
       "id": "eaD4G1u-6E8"
     },
     {
       "content": "Galway is the best place for WFH",
-      "votes": 0,
+      "votes": 2,
       "id": "CM5uFLQQKrA"
     },
     {
       "content": "Dublin is the best place for WFH",
       "votes": 0,
       "id": "GQRZfgErhTw"
+    },
+    {
+      "content": "Cork is the best place for WFH",
+      "votes": 1,
+      "id": "eWvWztVD-CM"
+    },
+    {
+      "content": "A bird in hand worth 2 in bush",
+      "votes": 1,
+      "id": "iXTbXCsczgM"
+    },
+    {
+      "content": "free lunch welcolme",
+      "votes": 1,
+      "id": "larqcGgUuJA"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

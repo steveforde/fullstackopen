@@ -6,7 +6,7 @@ const baseUrl = "http://localhost:3001/anecdotes";
 
 // --- ANECDOTE STORE ---
 // This store manages our main data and talks to the server.
-const useAnecdoteStore = create((set, get) => ({
+export const useAnecdoteStore = create((set, get) => ({
   anecdotes: [], // The local 'cache' of data currently visible in the app
   actions: {
     // GET: Fetches the entire list from the server when the app starts
