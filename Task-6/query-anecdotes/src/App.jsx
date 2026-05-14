@@ -2,6 +2,8 @@ import { useAnecdoteQueries } from "./hooks/useAnecdoteQueries";
 import AnecdoteForm from "./components/AnecdoteForm";
 import Notification from "./components/Notification";
 import { useNotify } from "./NotificationContext";
+import "./index.css";
+
 
 /**
  * App Component
