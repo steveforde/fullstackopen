@@ -291,15 +291,22 @@ const App = () => {
               }
             />
 
-            {/* 💡 CATCH-ALL ROUTE FOR EXERCISE 7.9 */}
+            {/* 💡 CUSTOM RED 404 CATCH-ALL ROUTE */}
             <Route
               path="*"
               element={
-                <Box sx={{ p: 4, textAlign: "center" }}>
-                  <Typography variant="h5" color="error" gutterBottom>
-                    Page not found
+                <Box sx={{ p: 4 }}>
+                  <Typography
+                    variant="h4"
+                    sx={{
+                      fontWeight: "bold",
+                      mb: 1,
+                      color: "#d32f2f", // Material-UI error red
+                    }}
+                  >
+                    404 – Page not found
                   </Typography>
-                  <Typography variant="body1">
+                  <Typography variant="body1" sx={{ color: "#555" }}>
                     The path you are looking for does not exist.
                   </Typography>
                 </Box>
