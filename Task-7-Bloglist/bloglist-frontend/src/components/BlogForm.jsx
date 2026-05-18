@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { TextField, Button, Box, Typography } from "@mui/material";
+import React from 'react'
+import { useState } from 'react'
+import { TextField, Button, Box, Typography } from '@mui/material'
 
 /**
  * BlogForm Component
@@ -11,9 +12,9 @@ import { TextField, Button, Box, Typography } from "@mui/material";
  */
 const BlogForm = ({ createBlog }) => {
   // State variables for each form field
-  const [newTitle, setNewTitle] = useState(""); // Blog title input
-  const [newAuthor, setNewAuthor] = useState(""); // Blog author input
-  const [newUrl, setNewUrl] = useState(""); // Blog URL input
+  const [newTitle, setNewTitle] = useState('') // Blog title input
+  const [newAuthor, setNewAuthor] = useState('') // Blog author input
+  const [newUrl, setNewUrl] = useState('') // Blog URL input
 
   /**
    * Handles form submission.
@@ -23,22 +24,22 @@ const BlogForm = ({ createBlog }) => {
    * @param {Event} event - The form submit event
    */
   const addBlog = (event) => {
-    event.preventDefault(); // Stop page from refreshing
+    event.preventDefault() // Stop page from refreshing
     createBlog({
       title: newTitle,
       author: newAuthor,
-      url: newUrl,
-    });
+      url: newUrl
+    })
 
     // Clear form fields after successful creation
-    setNewTitle("");
-    setNewAuthor("");
-    setNewUrl("");
-  };
+    setNewTitle('')
+    setNewAuthor('')
+    setNewUrl('')
+  }
 
   return (
     // Box container with margin-bottom, padding, border, and rounded corners
-    <Box sx={{ mb: 2, p: 2, border: "1px solid #ccc", borderRadius: 2 }}>
+    <Box sx={{ mb: 2, p: 2, border: '1px solid #ccc', borderRadius: 2 }}>
       <Typography variant="h5" gutterBottom>
         create new
       </Typography>
@@ -83,13 +84,13 @@ const BlogForm = ({ createBlog }) => {
           variant="contained" // Solid button style
           color="primary" // Blue color (theme primary)
           type="submit" // Triggers form submission
-          sx={{ mt: 1, textTransform: "none" }} // margin-top, prevent uppercase
+          sx={{ mt: 1, textTransform: 'none' }} // margin-top, prevent uppercase
         >
           create // Button text (lowercase as expected by tests)
         </Button>
       </form>
     </Box>
-  );
-};
+  )
+}
 
-export default BlogForm;
+export default BlogForm

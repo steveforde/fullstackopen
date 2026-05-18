@@ -1,8 +1,10 @@
-// React core hooks
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from 'react'
 // React Router components for navigation and routing
-import ErrorBoundary from "./components/ErrorBoundary";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import ErrorBoundary from './components/ErrorBoundary'
+import { Routes, Route, useNavigate } from 'react-router-dom'
+import useNotificationStore from './stores/notificationStore'
+import useBlogStore from './stores/blogStore' // Global Zustand blog tracker
+
 // Material-UI components for styling
 import {
   Container,
@@ -11,195 +13,166 @@ import {
   TextField,
   Button,
   Paper,
-  CssBaseline,
-} from "@mui/material";
+  CssBaseline
+} from '@mui/material'
 
 // Service imports – handle API communication with backend
-import blogService from "./services/blogs";
-import loginService from "./services/login";
+import blogService from './services/blogs'
+import loginService from './services/login'
 
 // Component imports – reusable UI pieces
-import BlogNotification from "./components/BlogNotification";
-import Navigation from "./components/Navigation";
-import Users from "./components/Users";
-import UserDetail from "./components/UserDetail";
-import BlogList from "./components/BlogList";
-import BlogDetail from "./components/BlogDetail";
+import BlogNotification from './components/BlogNotification'
+import Navigation from './components/Navigation'
+import Users from './components/Users'
+import UserDetail from './components/UserDetail'
+import BlogList from './components/BlogList'
+import BlogDetail from './components/BlogDetail'
 
 /**
  * Main App component – the root of the application.
- * Handles:
- * - User authentication (login/logout)
- * - Global state (blogs, users, notifications)
- * - Routing between pages (home, users, user detail, blog detail)
  */
 const App = () => {
-  // ========== STATE VARIABLES ==========
-  const [blogs, setBlogs] = useState([]); // All blogs from backend
-  const [users, setUsers] = useState([]); // All users from backend
-  const [username, setUsername] = useState(""); // Login form username field
-  const [password, setPassword] = useState(""); // Login form password field
-  const [user, setUser] = useState(null); // Currently logged-in user (null = not logged in)
-  const [notification, setNotification] = useState(null); // Notification message text
-  const [notificationType, setNotificationType] = useState("success"); // "success" or "error"
+  // ========== GLOBAL ZUSTAND STORES ==========
+  const showNotification = useNotificationStore(
+    (state) => state.showNotification
+  )
+  const blogs = useBlogStore((state) => state.blogs)
+  const initializeBlogs = useBlogStore((state) => state.initializeBlogs)
+  const storeAddBlog = useBlogStore((state) => state.addBlog)
+  const storeLikeBlog = useBlogStore((state) => state.likeBlog)
+  const storeDeleteBlog = useBlogStore((state) => state.deleteBlog)
 
-  const blogFormRef = useRef(); // Reference to Togglable component (to close form after submit)
-  const navigate = useNavigate(); // Programmatic navigation (redirect after actions)
+  // ========== LOCAL STATE VARIABLES ==========
+  const [users, setUsers] = useState([]) // All users from backend
+  const [username, setUsername] = useState('') // Login form username field
+  const [password, setPassword] = useState('') // Login form password field
+  const [user, setUser] = useState(null) // Currently logged-in user
+
+  const blogFormRef = useRef() // Reference to Togglable component
+  const navigate = useNavigate() // Programmatic navigation
 
   /**
    * Effect 1: Check localStorage for existing login on page load/refresh.
-   * Runs once when component mounts (empty dependency array).
-   * If a logged-in user is found in localStorage, restore their session.
    */
   useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem("loggedBlogappUser");
+    const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
     if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON);
-      setUser(user);
-      blogService.setToken(user.token); // Set auth token for future API requests
+      const user = JSON.parse(loggedUserJSON)
+      setUser(user)
+      blogService.setToken(user.token)
     }
-  }, []);
+  }, [])
 
   /**
    * Effect 2: Fetch all blogs and all users from the backend when app loads.
-   * Runs once when component mounts.
    */
   useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs));
-    blogService.getUsers().then((initialUsers) => setUsers(initialUsers));
-  }, []);
+    initializeBlogs() // Sync state with backend using Zustand
+    blogService.getUsers().then((initialUsers) => setUsers(initialUsers))
+  }, [initializeBlogs])
 
   /**
    * Logout handler: removes user from localStorage, clears state, shows notification.
    */
   const handleLogout = () => {
-    window.localStorage.removeItem("loggedBlogappUser"); // Clear saved session
-    setUser(null); // Set user to null (show login form)
-    setUsername(""); // Clear username field
-    setPassword(""); // Clear password field
-    notify("Logged out successfully");
-  };
+    window.localStorage.removeItem('loggedBlogappUser')
+    setUser(null)
+    setUsername('')
+    setPassword('')
+    showNotification('Logged out successfully')
+  }
 
   /**
    * Login handler: sends credentials to backend, stores token, updates state.
-   * Called when the login form is submitted.
    */
   const handleLogin = async (event) => {
-    event.preventDefault(); // Prevent page reload
+    event.preventDefault()
     try {
-      const user = await loginService.login({ username, password });
-      window.localStorage.setItem("loggedBlogappUser", JSON.stringify(user)); // Persist login
-      blogService.setToken(user.token); // Set token for future API calls
-      setUser(user); // Set logged-in user
-      setUsername(""); // Clear form fields
-      setPassword("");
+      const user = await loginService.login({ username, password })
+      window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user))
+      blogService.setToken(user.token)
+      setUser(user)
+      setUsername('')
+      setPassword('')
+      showNotification(`Welcome back, ${user.name}!`)
     } catch (exception) {
-      notify("Wrong credentials", "error"); // Show error notification
+      showNotification('Wrong username or password', 'error')
     }
-  };
-
-  /**
-   * Shows a temporary notification (auto-dismisses after 5 seconds).
-   * @param {string} message - The notification text
-   * @param {string} type - "success" (green) or "error" (red)
-   */
-  const notify = (message, type = "success") => {
-    setNotification(message);
-    setNotificationType(type);
-    setTimeout(() => setNotification(null), 5000);
-  };
+  }
 
   /**
    * Creates a new blog and adds it to the state.
-   * Called from BlogForm component.
    */
   const addBlog = async (blogObject) => {
     try {
-      const returnedBlog = await blogService.create(blogObject);
-      blogFormRef.current.toggleVisibility(); // Close the creation form
-      // Attach user info to the blog for display purposes
-      const blogWithUser = {
-        ...returnedBlog,
-        user: {
-          username: user.username,
-          name: user.name,
-          id: user.id || returnedBlog.user,
-        },
-      };
-      setBlogs(blogs.concat(blogWithUser)); // Add new blog to list
-      notify(`a new blog ${blogObject.title} by ${blogObject.author} added`);
-      navigate("/"); // Redirect to home page
+      await storeAddBlog(blogObject, user)
+      blogFormRef.current.toggleVisibility()
+      showNotification(
+        `A new blog '${blogObject.title}' by ${blogObject.author} added`
+      )
+      navigate('/')
     } catch {
-      notify("error adding blog", "error");
+      showNotification('Error adding blog', 'error')
     }
-  };
+  }
 
   /**
-   * Updates a blog's likes (or other properties).
-   * Called from BlogDetail when user clicks "like".
-   * @param {string} id - Blog ID
-   * @param {object} blogObject - Updated blog data
+   * Updates a blog's likes.
    */
   const updateBlog = async (id, blogObject) => {
     try {
-      const returnedBlog = await blogService.update(id, blogObject);
-      // Preserve the original user object (backend might not return it)
-      const blogToUpdate = blogs.find((b) => b.id === id);
-      const updatedBlogWithUser = { ...returnedBlog, user: blogToUpdate.user };
-      setBlogs(blogs.map((b) => (b.id !== id ? b : updatedBlogWithUser)));
+      await storeLikeBlog(id, blogObject)
     } catch (error) {
-      notify("Error updating likes", "error");
+      showNotification('Error updating likes', 'error')
     }
-  };
+  }
 
   /**
    * Deletes a blog after user confirmation.
-   * @param {string} id - Blog ID to delete
    */
   const deleteBlog = async (id) => {
-    const blogToRemove = blogs.find((b) => b.id === id);
+    const blogToRemove = blogs.find((b) => b.id === id)
     if (
       window.confirm(
-        `Remove blog ${blogToRemove.title} by ${blogToRemove.author}?`,
+        `Remove blog ${blogToRemove.title} by ${blogToRemove.author}?`
       )
     ) {
       try {
-        await blogService.remove(id);
-        setBlogs(blogs.filter((b) => b.id !== id)); // Remove from state
-        notify(`Deleted ${blogToRemove.title}`);
+        await storeDeleteBlog(id)
+        showNotification(`Deleted ${blogToRemove.title}`)
+        navigate('/')
       } catch (error) {
-        notify("Error deleting blog - are you the owner?", "error");
+        showNotification('Error deleting blog - are you the owner?', 'error')
       }
     }
-  };
+  }
 
   // ========== RENDERING ==========
 
   /**
    * RENDER FOR UNAUTHENTICATED USERS (user === null)
-   * Shows a centered login form with Material-UI styling.
    */
   if (user === null) {
     return (
       <Box
         sx={{
-          backgroundColor: "#f5f5f5",
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
+          backgroundColor: '#f5f5f5',
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center'
         }}
       >
         <CssBaseline />
         <Container maxWidth="sm">
           <Paper
-            key={user === null ? "logout" : "login"}
+            key={user === null ? 'logout' : 'login'}
             elevation={3}
-            sx={{ p: 4, textAlign: "center" }}
+            sx={{ p: 4, textAlign: 'center' }}
           >
             <Typography component="h1" variant="h4" gutterBottom>
               Blog App
             </Typography>
-            <BlogNotification message={notification} type={notificationType} />
+            <BlogNotification />
             <form onSubmit={handleLogin}>
               <TextField
                 label="Username"
@@ -227,7 +200,7 @@ const App = () => {
                 variant="contained"
                 color="primary"
                 type="submit"
-                sx={{ mt: 2, fontWeight: "bold" }}
+                sx={{ mt: 2, fontWeight: 'bold' }}
               >
                 LOGIN
               </Button>
@@ -235,27 +208,23 @@ const App = () => {
           </Paper>
         </Container>
       </Box>
-    );
+    )
   }
 
   /**
    * RENDER FOR AUTHENTICATED USERS
-   * Shows navigation bar, notification area, and routes to different pages.
    */
   return (
-    <Box sx={{ backgroundColor: "#f5f5f5", minHeight: "100vh" }}>
+    <Box sx={{ backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
       <CssBaseline />
 
-      {/* 1. Navigation stays OUTSIDE the ErrorBoundary */}
       <Navigation user={user} handleLogout={handleLogout} />
 
       <Container maxWidth="lg" sx={{ pt: 2, pb: 4 }}>
-        <BlogNotification message={notification} type={notificationType} />
+        <BlogNotification />
 
-        {/* 2. ErrorBoundary wraps the clean, flat single level of routes */}
         <ErrorBoundary>
           <Routes>
-            {/* Home page: list of blogs */}
             <Route
               path="/"
               element={
@@ -269,16 +238,13 @@ const App = () => {
                 />
               }
             />
-            {/* Users directory page */}
             <Route path="/users" element={<Users users={users} />} />
 
-            {/* Individual user detail page */}
             <Route
               path="/users/:id"
               element={<UserDetail users={users} blogs={blogs} />}
             />
 
-            {/* Individual blog detail page */}
             <Route
               path="/blogs/:id"
               element={
@@ -291,7 +257,6 @@ const App = () => {
               }
             />
 
-            {/* 💡 CUSTOM RED 404 CATCH-ALL ROUTE */}
             <Route
               path="*"
               element={
@@ -299,14 +264,14 @@ const App = () => {
                   <Typography
                     variant="h4"
                     sx={{
-                      fontWeight: "bold",
+                      fontWeight: 'bold',
                       mb: 1,
-                      color: "#d32f2f", // Material-UI error red
+                      color: '#d32f2f'
                     }}
                   >
                     404 – Page not found
                   </Typography>
-                  <Typography variant="body1" sx={{ color: "#555" }}>
+                  <Typography variant="body1" sx={{ color: '#555' }}>
                     The path you are looking for does not exist.
                   </Typography>
                 </Box>
@@ -316,7 +281,7 @@ const App = () => {
         </ErrorBoundary>
       </Container>
     </Box>
-  );
-};
+  )
+}
 
-export default App;
+export default App

@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
-import blogService from "../services/blogs";
-import { Link } from "react-router-dom";
+import React from 'react'
+import { useState, useEffect } from 'react'
+import blogService from '../services/blogs'
+import { Link } from 'react-router-dom'
 
 /**
  * Users Component
@@ -9,7 +10,7 @@ import { Link } from "react-router-dom";
  */
 const Users = () => {
   // State to store the list of users fetched from the backend
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState([])
 
   /**
    * Effect hook: Fetches all users from the backend when the component mounts.
@@ -17,9 +18,9 @@ const Users = () => {
    */
   useEffect(() => {
     blogService.getUsers().then((initialUsers) => {
-      setUsers(initialUsers); // Store the fetched users in state
-    });
-  }, []);
+      setUsers(initialUsers) // Store the fetched users in state
+    })
+  }, [])
 
   /**
    * Inline styles for the table to make it look modern and clean.
@@ -28,27 +29,27 @@ const Users = () => {
 
   // Table container style
   const tableStyle = {
-    width: "100%",
-    borderCollapse: "collapse", // Removes gaps between table cells
-    marginTop: "20px",
-  };
+    width: '100%',
+    borderCollapse: 'collapse', // Removes gaps between table cells
+    marginTop: '20px'
+  }
 
   // Standard cell style (applies to both header and body cells)
   const cellStyle = {
-    textAlign: "left",
-    padding: "12px",
-    borderBottom: "1px solid #ddd", // Subtle separator between rows
-  };
+    textAlign: 'left',
+    padding: '12px',
+    borderBottom: '1px solid #ddd' // Subtle separator between rows
+  }
 
   // Header cell style (inherits from cellStyle, adds background and bold text)
   const headerStyle = {
     ...cellStyle, // Spread operator: copies all properties from cellStyle
-    backgroundColor: "#f4f4f4", // Light gray background for header
-    fontWeight: "bold",
-  };
+    backgroundColor: '#f4f4f4', // Light gray background for header
+    fontWeight: 'bold'
+  }
 
   return (
-    <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
+    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
       <h2>Users</h2>
       <table style={tableStyle}>
         {/* Table Header */}
@@ -63,7 +64,7 @@ const Users = () => {
         <tbody>
           {users.map((user) => (
             <tr key={user.id}>
-              {" "}
+              {' '}
               {/* 'key' is required by React for list rendering */}
               <td style={cellStyle}>
                 {/* 
@@ -86,7 +87,7 @@ const Users = () => {
         </tbody>
       </table>
     </div>
-  );
-};
+  )
+}
 
-export default Users;
+export default Users

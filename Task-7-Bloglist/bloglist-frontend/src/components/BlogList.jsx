@@ -1,8 +1,9 @@
-import { useState } from "react"; // Imported for the temporary error test
-import Blog from "./Blog";
-import BlogForm from "./BlogForm";
-import Togglable from "./Togglable";
-import { Box, Button } from "@mui/material"; // Added Button from Material-UI
+import React from 'react'
+import { useState } from 'react' // Imported for the temporary error test
+import Blog from './Blog'
+import BlogForm from './BlogForm'
+import Togglable from './Togglable'
+import { Box, Button } from '@mui/material' // Added Button from Material-UI
 
 /**
  * BlogList Component
@@ -15,12 +16,10 @@ const BlogList = ({
   deleteBlog,
   user,
   addBlog,
-  blogFormRef,
+  blogFormRef
 }) => {
-  
   return (
     <Box>
-    
       {/* Togglable Component:
         - buttonLabel="create new blog": the text on the toggle button
         - ref={blogFormRef}: allows App.jsx to close the form after a blog is created
@@ -32,28 +31,19 @@ const BlogList = ({
 
       {/* Box container with margin-top for spacing */}
       <Box sx={{ mt: 2 }}>
-        {/*
-          Steps for displaying blogs:
-          1. Create a copy of the blogs array using spread operator [...blogs]
-             (prevents mutating the original array when sorting)
-          2. Sort by likes in descending order (most likes first)
-             b.likes - a.likes → positive means b comes before a
-          3. Map each blog to a Blog component
-        */}
-        {[...blogs]
-          .sort((a, b) => b.likes - a.likes)
-          .map((blog) => (
-            <Blog
-              key={blog.id} // Unique key required by React for list rendering
-              blog={blog} // The blog data object
-              handleLike={updateBlog} // Function to increment likes
-              handleDelete={deleteBlog} // Function to delete the blog
-              currentUser={user} // Used to conditionally show/hide delete button
-            />
-          ))}
+        {/* Directly map over blogs since they are already sorted by the Zustand store */}
+        {blogs.map((blog) => (
+          <Blog
+            key={blog.id}
+            blog={blog}
+            handleLike={updateBlog}
+            handleDelete={deleteBlog}
+            currentUser={user}
+          />
+        ))}
       </Box>
     </Box>
-  );
-};
+  )
+}
 
-export default BlogList;
+export default BlogList

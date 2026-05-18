@@ -1,5 +1,6 @@
-import { Link } from "react-router-dom";
-import { AppBar, Toolbar, Button, Typography, Box } from "@mui/material";
+import React from 'react'
+import { Link } from 'react-router-dom'
+import { AppBar, Toolbar, Button, Typography, Box } from '@mui/material'
 
 /**
  * Navigation Component
@@ -16,7 +17,7 @@ const Navigation = ({ user, handleLogout }) => {
     // sx: custom styling (MUI's styling prop)
     <AppBar
       position="static"
-      sx={{ backgroundColor: "#1976d2", marginBottom: "30px" }}
+      sx={{ backgroundColor: '#1976d2', marginBottom: '30px' }}
     >
       {/* Toolbar: Material-UI container that holds the navigation content */}
       <Toolbar>
@@ -29,7 +30,7 @@ const Navigation = ({ user, handleLogout }) => {
         <Typography
           variant="h5"
           component="div"
-          sx={{ mr: 4, fontWeight: "bold" }}
+          sx={{ mr: 4, fontWeight: 'bold' }}
         >
           Blog App
         </Typography>
@@ -40,7 +41,7 @@ const Navigation = ({ user, handleLogout }) => {
           display: "flex": makes children align horizontally
           gap: 1: spacing between buttons
         */}
-        <Box sx={{ flexGrow: 1, display: "flex", gap: 1 }}>
+        <Box sx={{ flexGrow: 1, display: 'flex', gap: 1 }}>
           {/* 
             Button with component={Link}: turns the button into a React Router link
             to="/": navigates to home page when clicked
@@ -51,7 +52,7 @@ const Navigation = ({ user, handleLogout }) => {
             color="inherit"
             component={Link}
             to="/"
-            sx={{ fontWeight: "bold", textTransform: "none" }}
+            sx={{ fontWeight: 'bold', textTransform: 'none' }}
           >
             blogs
           </Button>
@@ -60,7 +61,7 @@ const Navigation = ({ user, handleLogout }) => {
             color="inherit"
             component={Link}
             to="/users"
-            sx={{ fontWeight: "bold", textTransform: "none" }}
+            sx={{ fontWeight: 'bold', textTransform: 'none' }}
           >
             users
           </Button>
@@ -71,7 +72,7 @@ const Navigation = ({ user, handleLogout }) => {
           alignItems: "center": vertically centers the items
           gap: 2: spacing between user name and logout button
         */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           {/* Display the user's name with "logged in" text */}
           <Typography variant="body1">{user.name} logged in</Typography>
 
@@ -81,9 +82,9 @@ const Navigation = ({ user, handleLogout }) => {
             color="inherit" // White text and border
             size="small" // Smaller button size
             sx={{
-              fontWeight: "bold",
-              border: "1px solid rgba(255,255,255,0.5)", // Semi-transparent white border
-              textTransform: "none",
+              fontWeight: 'bold',
+              border: '1px solid rgba(255,255,255,0.5)', // Semi-transparent white border
+              textTransform: 'none'
             }}
           >
             logout
@@ -91,7 +92,7 @@ const Navigation = ({ user, handleLogout }) => {
         </Box>
       </Toolbar>
     </AppBar>
-  );
-};
+  )
+}
 
-export default Navigation;
+export default Navigation

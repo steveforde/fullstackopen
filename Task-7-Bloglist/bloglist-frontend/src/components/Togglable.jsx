@@ -1,7 +1,8 @@
-import { useState, useImperativeHandle, forwardRef } from "react";
-import { Button, Box } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import CancelIcon from "@mui/icons-material/Cancel";
+import React from 'react'
+import { useState, useImperativeHandle, forwardRef } from 'react'
+import { Button, Box } from '@mui/material'
+import AddIcon from '@mui/icons-material/Add'
+import CancelIcon from '@mui/icons-material/Cancel'
 
 /**
  * Togglable Component
@@ -16,15 +17,15 @@ import CancelIcon from "@mui/icons-material/Cancel";
  */
 const Togglable = forwardRef((props, ref) => {
   // State: true = content visible, false = content hidden
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(false)
 
   /**
    * Inline styles for conditional rendering.
    * When visible is true: hideWhenVisible has display: "none" (hides the open button)
    * When visible is false: showWhenVisible has display: "none" (hides the content and cancel button)
    */
-  const hideWhenVisible = { display: visible ? "none" : "" };
-  const showWhenVisible = { display: visible ? "" : "none" };
+  const hideWhenVisible = { display: visible ? 'none' : '' }
+  const showWhenVisible = { display: visible ? '' : 'none' }
 
   /**
    * Toggles the visibility state between true/false.
@@ -32,8 +33,8 @@ const Togglable = forwardRef((props, ref) => {
    * Called when "cancel" button is clicked (closes form)
    */
   const toggleVisibility = () => {
-    setVisible(!visible);
-  };
+    setVisible(!visible)
+  }
 
   /**
    * useImperativeHandle exposes the toggleVisibility function to parent components
@@ -44,13 +45,13 @@ const Togglable = forwardRef((props, ref) => {
    */
   useImperativeHandle(ref, () => {
     return {
-      toggleVisibility,
-    };
-  });
+      toggleVisibility
+    }
+  })
 
   return (
     <Box sx={{ mb: 3 }}>
-      {" "}
+      {' '}
       {/* mb = margin-bottom (spacing) */}
       {/* 1. The "Open" Button (e.g., 'create new blog') */}
       {/* Only visible when the content is HIDDEN (hideWhenVisible) */}
@@ -60,7 +61,7 @@ const Togglable = forwardRef((props, ref) => {
           color="primary"
           onClick={toggleVisibility} // Clicking opens the form
           startIcon={<AddIcon />} // Plus icon before the text
-          sx={{ fontWeight: "bold", textTransform: "none" }} // textTransform: "none" keeps original casing
+          sx={{ fontWeight: 'bold', textTransform: 'none' }} // textTransform: "none" keeps original casing
         >
           {props.buttonLabel} // e.g., "create new blog"
         </Button>
@@ -74,16 +75,16 @@ const Togglable = forwardRef((props, ref) => {
           color="error" // Red color for cancel button
           onClick={toggleVisibility} // Clicking closes the form
           startIcon={<CancelIcon />} // X icon before the text
-          sx={{ mt: 1, fontWeight: "bold", textTransform: "none" }} // mt = margin-top
+          sx={{ mt: 1, fontWeight: 'bold', textTransform: 'none' }} // mt = margin-top
         >
           cancel
         </Button>
       </Box>
     </Box>
-  );
-});
+  )
+})
 
 // Sets a display name for debugging in React DevTools
-Togglable.displayName = "Togglable";
+Togglable.displayName = 'Togglable'
 
-export default Togglable;
+export default Togglable
