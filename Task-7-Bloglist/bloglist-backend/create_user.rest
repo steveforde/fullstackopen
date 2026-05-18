@@ -1,0 +1,43 @@
+POST http://localhost:3003/api/users
+Content-Type: application/json
+
+{
+  "username": "steve_limerick",
+  "name": "Steve Forde",
+  "password": "secretpassword123"
+}
+####
+POST http://localhost:3003/api/users
+Content-Type: application/json
+
+{
+  "username": "jimmy_limerick",
+  "name": "jimmy the greek",
+  "password": "secretpassword567"
+}
+
+###
+GET http://localhost:3003/api/users
+
+####
+POST http://localhost:3003/api/users
+Content-Type: application/json
+
+{
+  "username": "sean_dublin",
+  "name": "sean the greek",
+  "password": "56"
+}
+
+###
+GET http://localhost:3003/api/users
+
+###
+POST http://localhost:3003/api/users
+Content-Type: application/json
+
+{
+  "username": "sharon_carlow",
+  "name": "Sharon",
+  "password": "sharonpassword123"
+}
