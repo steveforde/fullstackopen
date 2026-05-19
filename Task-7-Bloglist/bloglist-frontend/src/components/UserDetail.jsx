@@ -1,63 +1,108 @@
-import { useParams } from "react-router-dom";
+import React from 'react'
+import { useParams } from 'react-router-dom'
+// Exercise 7.17: Import Material-UI elements for clean list styling
+import {
+  Box,
+  Typography,
+  Paper,
+  List,
+  ListItem,
+  ListItemText,
+  Divider
+} from '@mui/material'
 
 /**
  * UserDetail Component
  * Displays a single user's profile page showing their name and all blogs they've created.
- * Blogs are sorted by likes (most likes first).
- *
- * @param {Array} users - List of all users (passed from App.jsx)
- * @param {Array} blogs - List of all blogs (passed from App.jsx), defaults to empty array
+ * * Exercise 7.17: Implements polished Material-UI display layout for personal blog metrics.
  */
 const UserDetail = ({ users, blogs = [] }) => {
-  // blogs = [] ensures it's never undefined
-  // useParams extracts the dynamic `:id` from the URL
-  // Example: /users/123 → id = "123"
-  const { id } = useParams();
+  const { id } = useParams()
 
   // Find the user object that matches the ID from the URL
-  // users?.find() uses optional chaining (?.) in case users is undefined
-  const user = users?.find((u) => u.id === id);
+  const user = users?.find((u) => u.id === id)
 
-  // If user not found (still loading or invalid ID), show loading message
-  if (!user) return <p>Loading...</p>;
+  // If user not found yet (loading or invalid ID), show clean fallback text
+  if (!user) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Typography variant="body1" color="textSecondary">
+          Loading user data...
+        </Typography>
+      </Box>
+    )
+  }
 
-  /**
-   * Filter blogs to only show those belonging to this user.
-   * Handles two cases:
-   *   1. blog.user.id === id (when user object is populated)
-   *   2. blog.user === id (when user is just an ID string)
-   */
+  // Filter blogs belonging to this specific user
   const userBlogs = (blogs || []).filter(
-    (b) => b.user?.id === id || b.user === id,
-  );
+    (b) => b.user?.id === id || b.user === id
+  )
 
   return (
-    <div style={{ padding: "20px" }}>
-      {/* Display the user's full name */}
-      <h2>{user.name}</h2>
+    <Box sx={{ padding: '20px' }}>
+      {/* User Header Profile */}
+      <Typography
+        variant="h4"
+        component="h2"
+        sx={{ fontWeight: 'bold', mb: 1 }}
+      >
+        {user.name}
+      </Typography>
 
-      <h3>added blogs</h3>
+      <Typography
+        variant="h6"
+        color="textSecondary"
+        sx={{ mb: 2, fontStyle: 'italic' }}
+      >
+        added blogs
+      </Typography>
 
-      {/* Unordered list of the user's blogs */}
-      <ul>
-        {/*
-          Steps for sorting:
-          1. Create a copy of the array using spread operator [...userBlogs]
-             (sort() mutates the original array, so we copy first)
-          2. Sort by likes in descending order (highest first)
-             Number(b.likes) - Number(a.likes) → positive means b comes first
-          3. Map each blog to a list item
-        */}
-        {[...userBlogs]
-          .sort((a, b) => Number(b.likes) - Number(a.likes))
-          .map((blog) => (
-            <li key={blog.id}>
-              {blog.title} — <strong>{blog.likes} likes</strong>
-            </li>
-          ))}
-      </ul>
-    </div>
-  );
-};
+      {/* CORRECTED CONTAINER: 
+        Swapped out TableContainer for a pure Paper component to eliminate 
+        MUI DOM property propagation warnings in the console.
+      */}
+      <Paper elevation={2} sx={{ overflow: 'hidden' }}>
+        {userBlogs.length === 0 ? (
+          <Box sx={{ p: 3 }}>
+            <Typography variant="body1" color="textSecondary">
+              This user hasn't added any blogs yet.
+            </Typography>
+          </Box>
+        ) : (
+          <List disablePadding>
+            {[...userBlogs]
+              .sort((a, b) => Number(b.likes) - Number(a.likes))
+              .map((blog, index) => (
+                <React.Fragment key={blog.id}>
+                  <ListItem sx={{ py: 1.5, px: 3 }}>
+                    <ListItemText
+                      primary={blog.title}
+                      secondary={`${blog.likes} likes`}
+                      slotProps={{
+                        primary: {
+                          // MUI expects typography configurations inside the sx object or as direct system props
+                          sx: {
+                            fontWeight: '500',
+                            fontSize: '1.05rem'
+                          }
+                        },
+                        secondary: {
+                          variant: 'body2',
+                          color: 'textSecondary',
+                          sx: { mt: 0.5 }
+                        }
+                      }}
+                    />
+                  </ListItem>
+                  {/* Draw a dividing line between items, but drop it for the final item */}
+                  {index < userBlogs.length - 1 && <Divider />}
+                </React.Fragment>
+              ))}
+          </List>
+        )}
+      </Paper>
+    </Box>
+  )
+}
 
-export default UserDetail;
+export default UserDetail

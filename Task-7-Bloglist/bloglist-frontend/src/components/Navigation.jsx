@@ -5,7 +5,7 @@ import { AppBar, Toolbar, Button, Typography, Box } from '@mui/material'
 /**
  * Navigation Component
  * The top navigation bar that appears when a user is logged in.
- * Shows the app title, navigation links (blogs, users), user name, and logout button.
+ * Shows the app title, navigation links (blogs, users, new blog), user name, and logout button.
  *
  * @param {Object} user - The currently logged-in user object (contains name, username, etc.)
  * @param {Function} handleLogout - Function to call when logout button is clicked
@@ -21,8 +21,7 @@ const Navigation = ({ user, handleLogout }) => {
     >
       {/* Toolbar: Material-UI container that holds the navigation content */}
       <Toolbar>
-        {/* 
-          Typography: Material-UI component for text
+        {/* Typography: Material-UI component for text
           variant="h5": heading level 5 (medium size)
           component="div": renders as a <div> instead of default <h1>
           sx={{ mr: 4 }}: margin-right: 32px (spacing)
@@ -35,15 +34,13 @@ const Navigation = ({ user, handleLogout }) => {
           Blog App
         </Typography>
 
-        {/* 
-          Box: Material-UI layout container (like a div)
+        {/* Box: Material-UI layout container (like a div)
           flexGrow: 1: pushes content to the right (takes up remaining space)
           display: "flex": makes children align horizontally
           gap: 1: spacing between buttons
         */}
         <Box sx={{ flexGrow: 1, display: 'flex', gap: 1 }}>
-          {/* 
-            Button with component={Link}: turns the button into a React Router link
+          {/* Button with component={Link}: turns the button into a React Router link
             to="/": navigates to home page when clicked
             color="inherit": uses the parent's text color (white in this case)
             textTransform: "none": prevents automatic uppercase conversion
@@ -65,10 +62,21 @@ const Navigation = ({ user, handleLogout }) => {
           >
             users
           </Button>
+
+          {/* Added: Dedicated New Blog navigation link
+            to="/create": routes user directly to the blog entry form view
+          */}
+          <Button
+            color="inherit"
+            component={Link}
+            to="/create"
+            sx={{ fontWeight: 'bold', textTransform: 'none' }}
+          >
+            new blog
+          </Button>
         </Box>
 
-        {/* 
-          Second Box: contains user info and logout button
+        {/* Second Box: contains user info and logout button
           alignItems: "center": vertically centers the items
           gap: 2: spacing between user name and logout button
         */}

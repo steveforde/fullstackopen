@@ -30,7 +30,7 @@ const setToken = (newToken) => {
 const getAll = async () => {
   // Create configuration object with authorization header
   const config = {
-    headers: { Authorization: token }, // Send token for authentication
+    headers: { Authorization: token } // Send token for authentication
   }
 
   // Make GET request to fetch all blogs
@@ -51,7 +51,7 @@ const getAll = async () => {
 const create = async (newObject) => {
   // Configuration with authorization token (required for creating blogs)
   const config = {
-    headers: { Authorization: token }, // Must have valid token
+    headers: { Authorization: token } // Must have valid token
   }
 
   // POST request to create new blog
@@ -70,7 +70,7 @@ const update = async (id, newObject) => {
 // Add this function to your services/blogs.js
 const remove = async (id) => {
   const config = {
-    headers: { Authorization: token },
+    headers: { Authorization: token }
   }
 
   const response = await axios.delete(`${baseUrl}/${id}`, config)
@@ -81,5 +81,29 @@ const getUsers = async () => {
   const response = await axios.get('/api/users')
   return response.data
 }
-// and export it!
-export default { getAll, create, update, remove, setToken, getUsers }
+
+/**
+ * --- EXERCISE 7.19 ---
+ * Submits a new anonymous comment for a specific blog post
+ * @param {string} id - The MongoDB identification string of the blog
+ * @param {string} commentContent - The text body string of the comment
+ * @returns {Promise<Object>} - The updated full blog document received from the server
+ */
+const createComment = async (id, commentContent) => {
+  // Sends HTTP POST request to /api/blogs/:id/comments with data payload
+  const response = await axios.post(`${baseUrl}/${id}/comments`, {
+    content: commentContent
+  })
+  return response.data
+}
+
+// Export all available endpoints including the comment service
+export default {
+  getAll,
+  create,
+  update,
+  remove,
+  setToken,
+  getUsers,
+  createComment
+}

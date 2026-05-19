@@ -55,6 +55,31 @@ const useBlogStore = create((set, get) => ({
     set((state) => ({
       blogs: state.blogs.filter((b) => b.id !== id)
     }))
+  },
+
+  // --- EXERCISE 7.19: COMMENTS BACKEND DISPATCHER ---
+  // Fires our dedicated backend POST router route and cleanly synchronizes state
+  addCommentToBlog: async (id, commentContent) => {
+    try {
+      // Dispatches HTTP POST connection pipeline to api/blogs/:id/comments
+      const updatedBlogFromServer = await blogService.createComment(
+        id,
+        commentContent
+      )
+
+      const currentBlogs = get().blogs
+
+      // Map across global runtime state array, substituting the older instance
+      // out with the verified payload array directly from MongoDB
+      const updatedList = currentBlogs.map((b) =>
+        b.id !== id ? b : updatedBlogFromServer
+      )
+
+      set({ blogs: updatedList })
+    } catch (error) {
+      console.error('Failed to append comment to global state:', error)
+      throw error // Re-throw to allow component view handlers to intercept errors
+    }
   }
 }))
 

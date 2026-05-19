@@ -1,44 +1,45 @@
 import React from 'react'
-import { useState } from 'react'
 import { TextField, Button, Box, Typography } from '@mui/material'
+import { useField } from '../hooks' // Exercise 7.15: Import custom hook
 
 /**
  * BlogForm Component
- * A form for creating new blog posts.
+ * A form for creating new blog posts using custom hooks.
  * Contains three fields: title, author, and URL.
  * Submits the data to the parent component (BlogList → App.jsx).
  *
  * @param {Function} createBlog - Function from App.jsx to add a new blog
  */
 const BlogForm = ({ createBlog }) => {
-  // State variables for each form field
-  const [newTitle, setNewTitle] = useState('') // Blog title input
-  const [newAuthor, setNewAuthor] = useState('') // Blog author input
-  const [newUrl, setNewUrl] = useState('') // Blog URL input
+  // Exercise 7.15: Replaced local states with custom hooks
+  const titleField = useField('text')
+  const authorField = useField('text')
+  const urlField = useField('text')
 
   /**
    * Handles form submission.
    * Prevents default browser reload, calls createBlog with the form data,
-   * then clears all input fields.
+   * then clears all input fields using the hook reset functions.
    *
    * @param {Event} event - The form submit event
    */
   const addBlog = (event) => {
     event.preventDefault() // Stop page from refreshing
+
+    // Exercise 7.15: Extract input values using .value
     createBlog({
-      title: newTitle,
-      author: newAuthor,
-      url: newUrl
+      title: titleField.value,
+      author: authorField.value,
+      url: urlField.value
     })
 
-    // Clear form fields after successful creation
-    setNewTitle('')
-    setNewAuthor('')
-    setNewUrl('')
+    // Exercise 7.15: Reset form fields back to empty strings
+    titleField.reset()
+    authorField.reset()
+    urlField.reset()
   }
 
   return (
-    // Box container with margin-bottom, padding, border, and rounded corners
     <Box sx={{ mb: 2, p: 2, border: '1px solid #ccc', borderRadius: 2 }}>
       <Typography variant="h5" gutterBottom>
         create new
@@ -47,22 +48,24 @@ const BlogForm = ({ createBlog }) => {
       <form onSubmit={addBlog}>
         {/* Title Input Field */}
         <TextField
-          label="Title" // Floating label text
-          id="title" // HTML id attribute (used by Playwright tests)
-          placeholder="title" // Placeholder text (CRITICAL for Playwright tests)
-          value={newTitle} // Controlled component value
-          onChange={({ target }) => setNewTitle(target.value)} // Update state on change
-          fullWidth // Takes full width of container
-          margin="dense" // Smaller margin (compact layout)
+          label="Title"
+          id="title"
+          placeholder="title"
+          type={titleField.type}
+          value={titleField.value}
+          onChange={titleField.onChange}
+          fullWidth
+          margin="dense"
         />
 
         {/* Author Input Field */}
         <TextField
           label="Author"
           id="author"
-          placeholder="author" // CRITICAL: Playwright uses this selector
-          value={newAuthor}
-          onChange={({ target }) => setNewAuthor(target.value)}
+          placeholder="author"
+          type={authorField.type}
+          value={authorField.value}
+          onChange={authorField.onChange}
           fullWidth
           margin="dense"
         />
@@ -71,22 +74,23 @@ const BlogForm = ({ createBlog }) => {
         <TextField
           label="URL"
           id="url"
-          placeholder="url" // CRITICAL: Playwright uses this selector
-          value={newUrl}
-          onChange={({ target }) => setNewUrl(target.value)}
+          placeholder="url"
+          type={urlField.type}
+          value={urlField.value}
+          onChange={urlField.onChange}
           fullWidth
           margin="dense"
         />
 
         {/* Submit Button */}
         <Button
-          id="create-button" // HTML id for Playwright tests
-          variant="contained" // Solid button style
-          color="primary" // Blue color (theme primary)
-          type="submit" // Triggers form submission
-          sx={{ mt: 1, textTransform: 'none' }} // margin-top, prevent uppercase
+          id="create-button"
+          variant="contained"
+          color="primary"
+          type="submit"
+          sx={{ mt: 1, textTransform: 'none' }}
         >
-          create // Button text (lowercase as expected by tests)
+          create
         </Button>
       </form>
     </Box>

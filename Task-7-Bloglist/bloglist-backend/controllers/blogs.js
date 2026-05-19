@@ -42,7 +42,7 @@ blogsRouter.post('/', async (request, response) => {
     author: request.body.author, // Blog author name
     url: request.body.url, // Blog URL (required)
     likes: request.body.likes || 0, // If likes not provided, default to 0
-    user: user.id, // Associate this blog with the authenticated user
+    user: user.id // Associate this blog with the authenticated user
   })
 
   // Save the blog to the database
@@ -57,7 +57,6 @@ blogsRouter.post('/', async (request, response) => {
   response.status(201).json(savedBlog)
 })
 
-// 4.13: DELETE a single blog
 // 4.13 & 4.21: DELETE a single blog
 blogsRouter.delete('/:id', async (request, response) => {
   // The authenticated user is attached by middleware
@@ -93,8 +92,10 @@ blogsRouter.delete('/:id', async (request, response) => {
 
 // GET a single blog by ID
 blogsRouter.get('/:id', async (request, response) => {
-  const blog = await Blog.findById(request.params.id)
-    .populate('user', { username: 1, name: 1 })
+  const blog = await Blog.findById(request.params.id).populate('user', {
+    username: 1,
+    name: 1
+  })
 
   if (blog) {
     response.json(blog)
@@ -111,26 +112,49 @@ blogsRouter.put('/:id', async (request, response) => {
   // Create an object with the fields to update
   // In this case, we're only updating the likes count
   const blog = {
-    likes: body.likes,
+    likes: body.likes
   }
 
   // Find the blog by ID and update it
   // returnDocument: 'after' makes sure the 'updatedBlog' variable contains the
   // NEW data after the update, not the old data from before the update.
-  // Without this, updatedBlog would contain the document as it was BEFORE the update
   const updatedBlog = await Blog.findByIdAndUpdate(
     request.params.id, // The ID of the blog to update
     blog, // The updates to apply
     {
-      returnDocument: 'after', // Return the updated document
-    },
-  )
+      returnDocument: 'after' // Return the updated document
+    }
+  ).populate('user', { username: 1, name: 1 }) // Keep user population consistent
 
   // Return the updated blog as JSON
   response.json(updatedBlog)
 })
 
+// --- EXERCISE 7.19: POST A NEW ANONYMOUS COMMENT ---
+// Route parameters: :id corresponds to the blog post ID string.
+// Full route matching pipeline: POST /api/blogs/:id/comments
+blogsRouter.post('/:id/comments', async (request, response) => {
+  const content = request.body.content
+
+  // Validation: If comment content payload is blank, return 400 Bad Request
+  if (!content) {
+    return response.status(400).json({ error: 'comment content is required' })
+  }
+
+  // Find the blog and push the comment string using atomic update to ensure database persistence
+  const updatedBlog = await Blog.findByIdAndUpdate(
+    request.params.id,
+    { $push: { comments: content } },
+    { new: true, runValidators: true }
+  ).populate('user', { username: 1, name: 1 })
+
+  if (!updatedBlog) {
+    return response.status(404).json({ error: 'blog not found' })
+  }
+
+  // Send the refreshed blog document containing the new comment back to frontend
+  response.status(201).json(updatedBlog)
+})
+
 // 3. We export this menu so our main app.js can use it.
-// This allows the main app to mount these routes with something like:
-// app.use('/api/blogs', blogsRouter)
 module.exports = blogsRouter
