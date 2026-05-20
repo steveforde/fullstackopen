@@ -7,9 +7,9 @@ This repository contains my completed coursework and project builds for the Univ
 ## 🚀 Current Progress & Achievements
 
 - **Status:** Completed Parts 0–7
-- **Academic Standing:** Awarded **Grade 5** (Highest possible distinction)
+- **Academic Standing:** Awarded **Grade 5**
 - **Credits Earned:** 7 ECTS Credits
-- **Total Engineering Hours:** 335+ hours of dedicated development
+- **Total Engineering Hours:** 335 hours of dedicated development and learning
 
 ---
 
