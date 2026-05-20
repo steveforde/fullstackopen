@@ -1,6 +1,6 @@
 # Full Stack Open Coursework
 
-This repository contains my completed coursework and project builds for the University of Helsinki's intensive **Full Stack Open** programme.
+This repository contains my completed coursework and exercises for the University of Helsinki's **Full Stack Open** programme.
 
 ---
 
@@ -16,7 +16,7 @@ This repository contains my completed coursework and project builds for the Univ
 ## 🛠️ Core Technology Pillars
 
 - **Frontend:** React, Redux, Zustand, React Router, Material-UI (MUI), Custom Hooks
-- **Backend:** Node.js, Express, REST APIs, GraphQL (Incoming)
+- **Backend:** Node.js, Express, REST APIs, GraphQL (In Progress)
 - **Database & Auth:** MongoDB, Mongoose, JSON Web Tokens (JWT), Session Management
 - **Tooling & Best Practices:** Vite, Prettier, ESLint, Unit/Integration Testing, Git/GitHub Version Control
 
@@ -34,4 +34,6 @@ The project workspace is modularly broken down by sequential submission tasks:
 
 ## 🎯 Career & Learning Goals
 
-I am a Junior Developer methodically completing this entire full-stack ecosystem to build enterprise-grade application profiles. My next milestones include expanding into TypeScript, GraphQL, and specialized web application security pipelines.
+I am a junior developer completing the Full Stack Open programme to strengthen my skills in modern web application development, testing, authentication, and production-ready tooling.
+
+After completing the course, my next goals are to deepen my knowledge of TypeScript and GraphQL, then progress into Python, automation, and web application security.
