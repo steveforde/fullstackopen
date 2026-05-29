@@ -24,14 +24,14 @@ const Books = (props) => {
       <table>
         <tbody>
           <tr>
-            <th></th>
-            <th>author</th>
+            <th>title</th> <th>author</th>
             <th>published</th>
           </tr>
           {books.map((b) => (
             <tr key={b.id}>
               <td>{b.title}</td>
-              <td>{b.author}</td>
+              <td>{b.author.name}</td>{" "}
+              {/* 🌟 FIXED: Accessing .name since author is now an object */}
               <td>{b.published}</td>
             </tr>
           ))}
